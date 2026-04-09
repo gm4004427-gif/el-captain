@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El-Captain - Interactive LMS Platform</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #10b981; --secondary-glow: rgba(16, 185, 129, 0.5);
+            --accent: #f59e0b; --text-main: #f8fafc; --text-muted: #94a3b8; --danger: #ef4444;
+            --input-bg: #1e293b; --input-border: #3b82f6;
+        }
+        body.light-mode {
+            --bg: #f1f5f9; --surface: #ffffff; --text-main: #0f172a; --text-muted: #475569;
+            --input-bg: #ffffff; --input-border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 130px; transition: 0.3s; }
+
+        .instructor-header { background: var(--surface); padding: 10px 20px; border-bottom: 2px solid var(--primary); box-shadow: 0 0 15px var(--primary-glow); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.3s; }
+        .header-title { text-align: right; }
+        .exam-title-en { font-weight: 900; font-size: 1.2rem; color: var(--text-main); direction: ltr; margin-bottom: 3px;}
+        .phone-number { font-size: 0.9rem; color: var(--text-main); letter-spacing: 1px; font-weight: bold; margin-bottom: 2px; }
+        .teacher-name { color: var(--primary); font-size: 1rem; font-weight: bold; }
+        .captain-badge { background: var(--accent); color: #000; padding: 2px 5px; border-radius: 5px; font-size: 0.8rem; margin-right: 5px;}
+
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        .social-btn { text-decoration: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
+        .btn-wa { background-color: #25D366; }
+        .btn-fb { background-color: #1877F2; }
+        .theme-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex-direction: column;}
+        .screen { display: none; animation: slideIn 0.5s ease-out forwards; width: 100%; flex-direction: column;}
+        .screen.active { display: flex; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn { background: linear-gradient(45deg, var(--primary), #2563eb); color: white; border: none; padding: 12px 25px; font-size: 1.1rem; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px var(--primary-glow); text-align: center; margin-bottom: 10px; width: 100%;}
+        .btn:hover { transform: translateY(-3px); }
+        .btn-alt { background: linear-gradient(45deg, var(--secondary), #059669); }
+        .btn-danger { background: var(--danger); }
+
+        .user-actions { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        .edit-btn, .logout-btn { background: transparent; border: 2px solid; padding: 5px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 1rem;}
+        .edit-btn { border-color: var(--primary); color: var(--primary); }
+        .edit-btn:hover { background: var(--primary); color: white; }
+        .logout-btn { border-color: var(--danger); color: var(--danger); }
+        .logout-btn:hover { background: var(--danger); color: white; }
+
+        input.text-input { width: 100%; max-width: 400px; padding: 15px; font-size: 1.2rem; border-radius: 12px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text-main); text-align: center; margin: 0 auto 20px auto; outline: none; display: block;}
+        .gender-toggle { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .gender-btn { background: var(--surface); color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 25px; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: bold; transition: 0.3s; }
+        .gender-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .intro-content { text-align: center; margin-top: 5vh; align-items: center;}
+        .intro-content h1 { font-size: 2.5rem; margin-bottom: 5px; color: var(--text-main); text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        
+        .units-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; padding-bottom: 40px;}
+        .unit-card { background: var(--surface); border: 2px solid #334155; border-radius: 15px; padding: 25px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .unit-card.active-unit { border-color: var(--accent); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+        .unit-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .unit-progress-bg { background: rgba(0,0,0,0.3); border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin-top: 10px; border: 1px solid #475569;}
+        .unit-progress-fill { background: linear-gradient(90deg, var(--danger), var(--accent), var(--secondary)); height: 100%; width: 0%; transition: width 1s ease-in-out; }
+
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border: 1px solid #334155; }
+        .dash-user-info h3 { color: var(--accent); margin: 0; font-size: 1.6rem; display: flex; align-items: center; gap: 10px;}
+        
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding-bottom: 40px;}
+        .box { background: var(--surface); border-radius: 15px; padding: 25px; text-align: center; border: 1px solid #334155; display: flex; flex-direction: column; justify-content: space-between;}
+        .box h4 { font-size: 1.3rem; margin-bottom: 20px; color: var(--secondary); border-bottom: 1px dashed #475569; padding-bottom: 10px;}
+        .grammar-box { grid-column: 1 / -1; border-color: var(--primary) !important; background: linear-gradient(180deg, var(--surface) 0%, rgba(59, 130, 246, 0.05) 100%); }
+
+        .viewer-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;}
+        iframe { flex-grow: 1; width: 100%; border: none; border-radius: 15px; background: white; min-height: 75vh; box-shadow: 0 0 20px rgba(0,0,0,0.5);}
+    </style>
+</head>
+<body class="secure-mode">
+
+    <div class="instructor-header">
+        <div class="header-title">
+            <div class="exam-title-en">Secondary 3 - LMS Platform</div>
+            <div class="phone-number">📞 01007607035</div>
+            <div class="teacher-name">Mr. Gamal Abo Eish <span class="captain-badge">El-Captain</span></div>
+        </div>
+        <div class="header-controls">
+            <a href="https://www.facebook.com/share/1HCVHKyLVT/" target="_blank" class="social-btn btn-fb">📘 فيسبوك</a>
+            <a href="https://wa.me/201007607035" target="_blank" class="social-btn btn-wa">💬 واتساب</a>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div id="screen-intro" class="screen intro-content">
+            <h1>مرحباً بك في المنصة التفاعلية الشاملة!</h1>
+            <p style="margin-bottom: 20px; font-size: 1.2rem; color: var(--text-muted);">سجل بياناتك لحفظ تقدمك تلقائياً:</p>
+            <div class="gender-toggle">
+                <button class="gender-btn active" id="btn-male" onclick="setGender('M')">👦 بطل</button>
+                <button class="gender-btn" id="btn-female" onclick="setGender('F')">👧 بطلة</button>
+            </div>
+            <input type="text" id="student-name" class="text-input" placeholder="اكتب اسمك الثلاثي هنا...">
+            <button class="btn btn-alt" style="max-width: 300px; padding: 15px; font-size: 1.4rem;" onclick="startApp()">دخول المنصة 🚀</button>
+        </div>
+
+        <div id="screen-units" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #334155; padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <div style="display: flex; flex-direction: column;">
+                    <h2 style="font-size: 2rem; margin: 0;"><span id="display-hero"></span> <span id="display-name" style="color:var(--accent);"></span>!</h2>
+                    <div class="user-actions">
+                        <button class="edit-btn" onclick="editProfile()">✏️ تعديل بياناتي</button>
+                        <button class="logout-btn" onclick="logout()">🔄 تسجيل خروج</button>
+                    </div>
+                </div>
+                <button class="btn btn-danger" style="width: auto; margin:0;" onclick="alert('بنك الأخطاء قيد التجهيز! سيقوم بجمع الأسئلة التي أخطأت فيها لاختبارك بها لاحقاً لضمان عدم نسيانها.')">🏦 بنك الأخطاء</button>
+            </div>
+
+            <div class="units-grid">
+                
+                <div class="unit-card" style="border-color: #8b5cf6;" onclick="openWritingSkills()">
+                    <h3 style="color: #8b5cf6;">مهارات الكتابة ✍️</h3>
+                    <p>General Writing Skills</p>
+                    <div class="unit-progress-bg"><div class="unit-progress-fill" id="ws-bar" style="background: linear-gradient(90deg, #8b5cf6, #6d28d9);"></div></div>
+                    <div style="font-size: 1rem; margin-top: 8px; color: #8b5cf6; font-weight: bold;">إنجاز المهارات: <span id="ws-text">0%</span></div>
+                </div>
+
+                <div class="unit-card active-unit" onclick="openUnit('Unit1', 'Unit 1: Read All About It')">
+                    <h3>الوحدة الأولى</h3>
+                    <p>Read All About It</p>
+                    <div class="unit-progress-bg"><div class="unit-progress-fill" id="u1-bar"></div></div>
+                    <div style="font-size: 1rem; margin-top: 8px; color: var(--secondary); font-weight: bold;">إنجاز الوحدة: <span id="u1-text">0%</span></div>
+                </div>
+
+                <div class="unit-card" onclick="alert('ملفات الوحدة الثانية قيد التجهيز يا بطل! ⏳')">
+                    <h3>الوحدة الثانية</h3>
+                    <p>Her Story</p>
+                    <div class="unit-progress-bg"><div class="unit-progress-fill" style="width:0%"></div></div>
+                    <div style="font-size: 1rem; margin-top: 8px; color: var(--text-muted);">قيد التجهيز ⏳</div>
+                </div>
+
+                <div class="unit-card" onclick="alert('ملفات الوحدة الثالثة قيد التجهيز يا بطل! ⏳')">
+                    <h3>الوحدة الثالثة</h3>
+                    <p>Beyond Imagination</p>
+                    <div class="unit-progress-bg"><div class="unit-progress-fill" style="width:0%"></div></div>
+                    <div style="font-size: 1rem; margin-top: 8px; color: var(--text-muted);">قيد التجهيز ⏳</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="screen-dashboard" class="screen">
+            <div class="dashboard-header">
+                <div class="dash-user-info">
+                    <h3 id="dash-unit-title">Unit Title</h3>
+                </div>
+                <button class="btn" style="width: auto; margin: 0; padding: 8px 15px;" onclick="showScreen('screen-units'); calculateProgress();">العودة للوحدات ⬅</button>
+            </div>
+            
+            <div class="grid-layout">
+                <div class="box">
+                    <h4>📝 Vocabulary & Idioms</h4>
+                    <div>
+                        <button class="btn" onclick="openGame('Study_Words_Unit1.html')">📖 دراسة الكلمات والنطق</button>
+                        <button class="btn" onclick="openGame('Vocab_Quiz_30_Random.html')">🔥 اختبار الكلمات (30 عشوائي)</button>
+                        <button class="btn" onclick="openGame('Idioms_Unit1.html')">💡 شرح واختبار المصطلحات</button>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h4>🔗 Synonyms & Definitions</h4>
+                    <div>
+                        <button class="btn btn-alt" onclick="openGame('Study_Synonyms_Antonyms_Unit1.html')">📖 المترادفات والمتضادات</button>
+                        <button class="btn btn-alt" onclick="openGame('Synonyms_Antonyms_Quiz_Unit1.html')">⚔️ اختبار المترادفات والمتضادات</button>
+                        <button class="btn btn-alt" onclick="openGame('Definitions_Unit1.html')">📚 إتقان واختبار التعريفات</button>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h4>📖 Story (Chapter 1)</h4>
+                    <div>
+                        <button class="btn" style="background: linear-gradient(45deg, #10b981, #059669);" onclick="openGame('Story_Unit1.html')">🎭 The Count of Monte Cristo</button>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h4>✍️ Unit Writing Skills</h4>
+                    <div>
+                        <button class="btn" style="background: linear-gradient(45deg, #eab308, #d97706);" onclick="openGame('Skills_Unit1.html')">📝 مهارة كتابة التدوينة (Blog)</button>
+                    </div>
+                </div>
+
+                <div class="box grammar-box">
+                    <h4>🛠️ قسم القواعد (Grammar)</h4>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <button class="btn" style="flex: 1; margin:0;" onclick="openGame('Past_Simple_Unit1.html')">🕰️ الماضي البسيط وتريكاته</button>
+                        <button class="btn" style="flex: 1; margin:0;" onclick="openGame('Pres_Perf_Simple_Unit1.html')">✨ المضارع التام البسيط</button>
+                        <button class="btn" style="flex: 1; margin:0;" onclick="openGame('Pres_Perf_Cont_Unit1.html')">⏳ المضارع التام المستمر</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-writing-dashboard" class="screen">
+            <div class="dashboard-header" style="border-color: #8b5cf6;">
+                <div class="dash-user-info">
+                    <h3 style="color: #8b5cf6;">✍️ General Writing Skills</h3>
+                </div>
+                <button class="btn" style="width: auto; margin: 0; padding: 8px 15px;" onclick="showScreen('screen-units'); calculateProgress();">العودة للرئيسية ⬅</button>
+            </div>
+            
+            <div class="grid-layout">
+                <div class="box" style="border-color: #8b5cf6;">
+                    <h4 style="color: #8b5cf6;">🅰️ Punctuation & Capitalization</h4>
+                    <div>
+                        <button class="btn" style="background: linear-gradient(45deg, #8b5cf6, #6d28d9);" onclick="openGame('Punctuation_Unit1.html')">✍️ شرح واختبار علامات الترقيم</button>
+                    </div>
+                </div>
+
+                <div class="box" style="border-color: #8b5cf6;">
+                    <h4 style="color: #8b5cf6;">📝 Essay & Paragraph</h4>
+                    <div>
+                        <button class="btn" style="background: linear-gradient(45deg, #8b5cf6, #6d28d9);" onclick="openGame('Essay_Writing_Skills.html')">📝 مهارات كتابة المقال والفقرة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-viewer" class="screen" style="padding: 0;">
+            <div class="viewer-header">
+                <h3 style="color: var(--accent); font-size: 1.1rem; margin:0;" id="viewer-title">تشغيل الملف...</h3>
+                <button class="btn btn-danger" style="width: auto; margin:0; padding: 8px 20px;" onclick="closeGame()">إغلاق وحفظ التقدم 💾</button>
+            </div>
+            <iframe id="game-frame" src=""></iframe>
+        </div>
+
+    </div>
+
+    <script>
+        let studentName = "", studentGender = 'M';
+        let currentFolder = "Unit1"; 
+        let currentDashboard = "screen-dashboard";
+
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        window.onload = function() {
+            const n = localStorage.getItem('ElCaptain_StudentName');
+            const g = localStorage.getItem('ElCaptain_StudentGender');
+            if (n) { 
+                studentName = n; studentGender = g || 'M'; 
+                setupUI(); 
+                history.replaceState({ screen: 'screen-units' }, "", "#units");
+                showScreen('screen-units', false); 
+            } else {
+                history.replaceState({ screen: 'screen-intro' }, "", "#intro");
+                showScreen('screen-intro', false);
+            }
+        };
+
+        window.addEventListener('popstate', function(event) {
+            if(event.state && event.state.screen) showScreen(event.state.screen, false);
+            else { if(studentName) showScreen('screen-units', false); else showScreen('screen-intro', false); }
+        });
+
+        function setGender(g) { 
+            studentGender = g; 
+            document.getElementById('btn-male').classList.toggle('active', g==='M'); 
+            document.getElementById('btn-female').classList.toggle('active', g==='F'); 
+        }
+        
+        function startApp() {
+            const input = document.getElementById('student-name').value.trim();
+            if (!input) return alert("أرجوك اكتب اسمك يا بطل!");
+            studentName = input;
+            localStorage.setItem('ElCaptain_StudentName', studentName);
+            localStorage.setItem('ElCaptain_StudentGender', studentGender);
+            setupUI(); showScreen('screen-units');
+        }
+
+        function editProfile() {
+            document.getElementById('student-name').value = studentName;
+            setGender(studentGender);
+            showScreen('screen-intro');
+        }
+
+        function logout() {
+            if(confirm("هل أنت متأكد أنك تريد تسجيل الخروج؟")) {
+                localStorage.removeItem('ElCaptain_StudentName');
+                localStorage.removeItem('ElCaptain_StudentGender');
+                document.getElementById('student-name').value = '';
+                showScreen('screen-intro');
+            }
+        }
+
+        function setupUI() {
+            document.getElementById('display-hero').innerText = studentGender==='M' ? "مرحباً يا بطل:" : "مرحباً يا بطلة:";
+            document.getElementById('display-name').innerText = studentName;
+            calculateProgress();
+        }
+
+        function calculateProgress() {
+            const u1_keys = ['Sec3_Unit1_Vocab_Score', 'Sec3_Unit1_Idioms_Score', 'Sec3_Unit1_SynAnt_Score', 'Sec3_Unit1_Defs_Score', 'Sec3_Unit1_Skills_Score', 'Sec3_Unit1_PastSimple_Score', 'Sec3_Unit1_PresPerfSimple_Score', 'Sec3_Unit1_PresPerfCont_Score', 'Sec3_Unit1_Story_Score'];
+            let u1_total = 0;
+            u1_keys.forEach(k => u1_total += parseInt(localStorage.getItem(k)) || 0);
+            let u1_avg = Math.round(u1_total / 9);
+            document.getElementById('u1-bar').style.width = u1_avg + '%';
+            document.getElementById('u1-text').innerText = u1_avg + '%';
+            if(u1_avg >= 85) document.getElementById('u1-bar').style.background = "linear-gradient(90deg, #10b981, #059669)";
+
+            const ws_keys = ['Sec3_Unit1_Punctuation_Score', 'Sec3_Unit1_EssaySkills_Score'];
+            let ws_total = 0;
+            ws_keys.forEach(k => ws_total += parseInt(localStorage.getItem(k)) || 0);
+            let ws_avg = Math.round(ws_total / 2);
+            document.getElementById('ws-bar').style.width = ws_avg + '%';
+            document.getElementById('ws-text').innerText = ws_avg + '%';
+        }
+
+        function showScreen(id, pushHistory = true) { 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+            document.getElementById(id).classList.add('active'); 
+            if(id !== 'screen-viewer') document.getElementById('game-frame').src = "";
+            if(pushHistory) history.pushState({ screen: id }, "", "#" + id.replace('screen-', ''));
+        }
+
+        function openUnit(folderName, title) { 
+            currentFolder = folderName; 
+            currentDashboard = 'screen-dashboard';
+            document.getElementById('dash-unit-title').innerText = title; 
+            showScreen('screen-dashboard'); 
+        }
+
+        function openWritingSkills() {
+            // توجيه المسار إلى فولدر Writing skills الذي أنشأته
+            currentFolder = "Writing skills"; 
+            currentDashboard = 'screen-writing-dashboard';
+            showScreen('screen-writing-dashboard');
+        }
+
+        function openGame(fileName) { 
+            document.getElementById('viewer-title').innerText = "جاري التدريب على: " + fileName.replace('.html', '').replace(/_/g, ' '); 
+            document.getElementById('game-frame').src = currentFolder + "/" + fileName; 
+            showScreen('screen-viewer'); 
+        }
+
+        function closeGame() { 
+            showScreen(currentDashboard); 
+            calculateProgress(); 
+        }
+    </script>
+</body>
+</html>
