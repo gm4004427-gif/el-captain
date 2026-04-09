@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El-Captain - Interactive Vocabulary</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #10b981; --secondary-glow: rgba(16, 185, 129, 0.5); --accent: #f59e0b; 
+            --text-main: #f8fafc; --text-muted: #94a3b8; --danger: #ef4444; 
+            --input-bg: #1e293b; --input-border: #3b82f6;
+        }
+
+        body.light-mode {
+            --bg: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #475569;
+            --input-bg: #ffffff; --input-border: #cbd5e1; --primary-glow: rgba(59, 130, 246, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { 
+            background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 130px; transition: 0.3s;
+        }
+        
+        body.secure-mode { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input { user-select: auto !important; -webkit-user-select: auto !important; }
+
+        /* Header */
+        .instructor-header {
+            background: var(--surface); padding: 10px 20px; border-bottom: 2px solid var(--primary); 
+            box-shadow: 0 0 15px var(--primary-glow); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.3s;
+        }
+        .header-title { text-align: right; }
+        .exam-title-en { font-weight: 900; font-size: 1.2rem; color: var(--text-main); direction: ltr; margin-bottom: 3px;}
+        .phone-number { font-size: 0.9rem; color: var(--text-main); letter-spacing: 1px; font-weight: bold; margin-bottom: 2px; }
+        .teacher-name { color: var(--primary); font-size: 1rem; font-weight: bold; }
+        .captain-badge { background: var(--accent); color: #000; padding: 2px 5px; border-radius: 5px; font-size: 0.8rem; margin-right: 5px;}
+
+        /* Social & Controls */
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        .social-btn { text-decoration: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
+        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-wa { background-color: #25D366; }
+        .btn-fb { background-color: #1877F2; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .theme-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+        .theme-btn:hover { background: var(--text-main); color: var(--bg); }
+
+        /* Controls Panel (Search & Speed) */
+        .controls-panel {
+            background: var(--surface); max-width: 700px; margin: 0 auto 30px auto; padding: 25px;
+            border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); text-align: center;
+            border: 2px dashed var(--accent); transition: 0.3s;
+        }
+        #search-input {
+            width: 100%; padding: 15px; border: 2px solid var(--input-border); border-radius: 50px;
+            font-size: 1.2rem; outline: none; text-align: center; margin-bottom: 20px;
+            background: var(--input-bg); color: var(--text-main); transition: 0.3s; font-weight: bold;
+        }
+        #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
+
+        .speed-control { display: flex; align-items: center; justify-content: center; gap: 15px; color: var(--text-main); font-weight: bold; font-size: 1.1rem; }
+        input[type=range] { width: 200px; cursor: pointer; accent-color: var(--primary); }
+
+        /* Cards Layout */
+        .cards-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px; max-width: 1200px; margin: 0 auto; padding: 0 15px 50px 15px;
+        }
+
+        .card {
+            background: var(--surface); padding: 20px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 1px solid #334155;
+            border-right: 8px solid var(--accent); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        body.light-mode .card { border-color: #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 10px 25px var(--primary-glow); border-right-color: var(--primary); }
+        
+        .speak-btn {
+            background-color: var(--primary); color: white; border: none; width: 65px; height: 65px;
+            border-radius: 50%; font-size: 2rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+        .card:hover .speak-btn { background-color: var(--secondary); transform: scale(1.1); box-shadow: 0 0 15px var(--secondary-glow); }
+
+        .text-content { text-align: right; flex-grow: 1; padding-left: 15px; display: flex; flex-direction: column; gap: 5px; }
+        .en-word { font-size: 1.6rem; font-weight: 900; color: var(--primary); direction: ltr; text-align: left; }
+        .ipa-text { font-size: 1rem; color: var(--text-muted); font-style: italic; direction: ltr; text-align: left; margin-bottom: 5px; letter-spacing: 0.5px;}
+        .ar-word { font-size: 1.4rem; color: var(--text-main); font-weight: bold; }
+        
+        /* Stats Banner */
+        .stats-banner { text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: var(--secondary); font-weight: bold; text-shadow: 0 0 5px rgba(16, 185, 129, 0.3);}
+
+    </style>
+</head>
+<body class="secure-mode">
+
+    <div class="instructor-header">
+        <div class="header-title">
+            <div class="exam-title-en">Interactive Vocabulary</div>
+            <div class="phone-number">📞 01007607035</div>
+            <div class="teacher-name">Mr. Gamal Abo Eish <span class="captain-badge">El-Captain</span></div>
+        </div>
+        <div class="header-controls">
+            <a href="https://www.instagram.com/g.aboaish?igsh=MWUxbmJjOXBqMXI0NA==" target="_blank" class="social-btn btn-ig">إنستجرام 📸</a>
+            <a href="https://www.facebook.com/share/1HCVHKyLVT/" target="_blank" class="social-btn btn-fb">فيسبوك 📘</a>
+            <a href="https://wa.me/201007607035" target="_blank" class="social-btn btn-wa">واتساب 💬</a>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <div class="stats-banner">📚 بنك الكلمات الشامل (88 كلمة) - النطق أمريكي 🇺🇸</div>
+
+    <div class="controls-panel">
+        <input type="text" id="search-input" placeholder="🔍 ابحث عن كلمة بالإنجليزي أو بالعربي..." onkeyup="filterCards()">
+        
+        <div class="speed-control">
+            <span>بطيء 🐢</span>
+            <input type="range" id="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9" oninput="updateSpeedLabel()">
+            <span>🐇 سريع</span>
+        </div>
+        <div id="speed-display" style="margin-top: 10px; color: var(--accent); font-size: 1.1rem; font-weight: bold;">السرعة: 0.9x</div>
+    </div>
+
+    <div class="cards-container" id="container">
+        </div>
+
+    <script>
+        // حماية المحتوى
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('copy', e => e.preventDefault());
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        const vocabList = [
+            {en: "administer", ar: "يعطي دواء", ipa: "/ədˈmɪn.ə.stɚ/"},
+            {en: "attention", ar: "انتباه - رعاية", ipa: "/əˈten.ʃən/"},
+            {en: "beep", ar: "صفارة / يصفر", ipa: "/biːp/"},
+            {en: "buzz", ar: "أزيز - يعج بـ - يصدر أزيزاً", ipa: "/bʌz/"},
+            {en: "chaos", ar: "فوضى", ipa: "/ˈkeɪ.ɑːs/"},
+            {en: "chart", ar: "جدول - يخطط/يرسم", ipa: "/tʃɑːrt/"},
+            {en: "chest", ar: "صدر", ipa: "/tʃest/"},
+            {en: "clutch", ar: "يمسك بقوة", ipa: "/klʌtʃ/"},
+            {en: "collapse", ar: "انهيار - ينهار/ يتهاوي", ipa: "/kəˈlæps/"},
+            {en: "consciousness", ar: "الوعي - الإدراك", ipa: "/ˈkɑːn.ʃəs.nəs/"},
+            {en: "CPR", ar: "الإنعاش القلبي الرئوي", ipa: "/ˌsiː.piːˈɑːr/"},
+            {en: "emergency", ar: "حالة طارئة", ipa: "/ɪˈmɝː.dʒən.si/"},
+            {en: "forehead", ar: "جبهة - جبين", ipa: "/ˈfɔːr.hed/"},
+            {en: "grab", ar: "شدة/جذبة - يمسك بشدة/يجذب", ipa: "/ɡræb/"},
+            {en: "groan", ar: "يتأوه", ipa: "/ɡroʊn/"},
+            {en: "heartbreaking", ar: "محزن جدًا", ipa: "/ˈhɑːrtˌbreɪ.kɪŋ/"},
+            {en: "kick off", ar: "يبدأ - يستهل", ipa: "/kɪk ɑːf/"},
+            {en: "moan", ar: "يئن", ipa: "/moʊn/"},
+            {en: "paramedic", ar: "المسعف", ipa: "/ˌper.əˈmed.ɪk/"},
+            {en: "pulse", ar: "نبض القلب", ipa: "/pʌls/"},
+            {en: "rewarding", ar: "مجز - مرض", ipa: "/rɪˈwɔːr.dɪŋ/"},
+            {en: "rollercoaster", ar: "قطار ملاهي - تجربة متقلبة", ipa: "/ˈroʊ.lɚˌkoʊ.stɚ/"},
+            {en: "scope", ar: "منظار طبي - مجهر", ipa: "/skoʊp/"},
+            {en: "shift", ar: "نوبة عمل (وردية/دوام)", ipa: "/ʃɪft/"},
+            {en: "stitch", ar: "يخيط (يغرز)", ipa: "/stɪtʃ/"},
+            {en: "swallow", ar: "يبتلع", ipa: "/ˈswɑː.loʊ/"},
+            {en: "teamwork", ar: "عمل جماعي", ipa: "/ˈtiːm.wɝːk/"},
+            {en: "victim", ar: "ضحية", ipa: "/ˈvɪk.təm/"},
+            {en: "appointment", ar: "موعد", ipa: "/əˈpɔɪnt.mənt/"},
+            {en: "arise", ar: "ينشأ / يظهر", ipa: "/əˈraɪz/"},
+            {en: "assist", ar: "يساعد", ipa: "/əˈsɪst/"},
+            {en: "beeping", ar: "صوت صفير متكرر", ipa: "/ˈbiːpɪŋ/"},
+            {en: "bleed", ar: "ينزف", ipa: "/bliːd/"},
+            {en: "caring", ar: "مهتم / حنون", ipa: "/ˈker.ɪŋ/"},
+            {en: "catchy", ar: "جذاب", ipa: "/ˈkætʃ.i/"},
+            {en: "ceremony", ar: "مراسم - احتفال", ipa: "/ˈser.ə.moʊ.ni/"},
+            {en: "colleague", ar: "زميل (عمل)", ipa: "/ˈkɑː.liːɡ/"},
+            {en: "complain", ar: "يشكو", ipa: "/kəmˈpleɪn/"},
+            {en: "condition", ar: "حالة - ظرف - شرط", ipa: "/kənˈdɪʃ.ən/"},
+            {en: "consume", ar: "يستهلك", ipa: "/kənˈsuːm/"},
+            {en: "contaminated", ar: "ملوث", ipa: "/kənˈtæm.ə.neɪ.t̬ɪd/"},
+            {en: "contribute", ar: "يساهم", ipa: "/kənˈtrɪb.juːt/"},
+            {en: "differentiate", ar: "يميز", ipa: "/ˌdɪf.əˈren.ʃi.eɪt/"},
+            {en: "dizzy", ar: "يشعر بالدوار(دائخ)", ipa: "/ˈdɪz.i/"},
+            {en: "document", ar: "يوثق - وثيقة/مستند", ipa: "/ˈdɑː.kjə.mənt/"},
+            {en: "elderly", ar: "مسن", ipa: "/ˈel.dɚ.li/"},
+            {en: "emphasis", ar: "تأكيد", ipa: "/ˈem.fə.sɪs/"},
+            {en: "engaging", ar: "مثير للاهتمام - مشوق", ipa: "/ɪnˈɡeɪ.dʒɪŋ/"},
+            {en: "ensure", ar: "يضمن - يؤكد علي", ipa: "/ɪnˈʃʊr/"},
+            {en: "extract", ar: "يستخرج - يستخلص - اقتباس", ipa: "/ɪkˈstrækt/"},
+            {en: "flexible", ar: "مرن", ipa: "/ˈflek.sə.bəl/"},
+            {en: "fulfilled", ar: "راض / مرتاح", ipa: "/fʊlˈfɪld/"},
+            {en: "gratitude", ar: "امتنان - عرفان", ipa: "/ˈɡræt̬.ə.tuːd/"},
+            {en: "healthcare", ar: "الرعاية الصحية", ipa: "/ˈhelθ.ker/"},
+            {en: "heartbeat", ar: "نبض القلب", ipa: "/ˈhɑːrt.biːt/"},
+            {en: "hesitation", ar: "تردد", ipa: "/ˌhez.əˈteɪ.ʃən/"},
+            {en: "improve", ar: "يحسن - يتحسن", ipa: "/ɪmˈpruːv/"},
+            {en: "include", ar: "يشمل/يتضمن - يضمن", ipa: "/ɪnˈkluːd/"},
+            {en: "introduce", ar: "يقدم / يدخل", ipa: "/ˌɪn.trəˈduːs/"},
+            {en: "medication", ar: "دواء", ipa: "/ˌmed.əˈkeɪ.ʃən/"},
+            {en: "miserable", ar: "بائس - تعيس", ipa: "/ˈmɪz.ɚ.ə.bəl/"},
+            {en: "monitor", ar: "جهاز مراقبة - يراقب", ipa: "/ˈmɑː.nə.t̬ɚ/"},
+            {en: "nurse", ar: "ممرضة - تمرض", ipa: "/nɝːs/"},
+            {en: "prescription", ar: "وصفة طبية (روشتة)", ipa: "/prɪˈskrɪp.ʃən/"},
+            {en: "progress", ar: "تقدم", ipa: "/ˈprɑː.ɡres/"},
+            {en: "purpose", ar: "غرض", ipa: "/ˈpɝː.pəs/"},
+            {en: "random", ar: "عشوائي", ipa: "/ˈræn.dəm/"},
+            {en: "recover", ar: "يتعافى - يستفيق", ipa: "/rɪˈkʌv.ɚ/"},
+            {en: "reflect", ar: "يتفكر / يفكر - يعكس", ipa: "/rɪˈflekt/"},
+            {en: "regain", ar: "يستعيد", ipa: "/rɪˈɡeɪn/"},
+            {en: "relief", ar: "راحة / زوال الضيق", ipa: "/rɪˈliːf/"},
+            {en: "reminder", ar: "تذكير/مذكر", ipa: "/rɪˈmaɪn.dɚ/"},
+            {en: "remove", ar: "يزيل", ipa: "/rɪˈmuːv/"},
+            {en: "session", ar: "جلسة / دورة", ipa: "/ˈseʃ.ən/"},
+            {en: "severe", ar: "شديد", ipa: "/səˈvɪr/"},
+            {en: "sharp", ar: "حاد", ipa: "/ʃɑːrp/"},
+            {en: "soaked", ar: "مبلل تمامًا", ipa: "/soʊkt/"},
+            {en: "sterile", ar: "معقم", ipa: "/ˈster.əl/"},
+            {en: "stethoscope", ar: "سماعة طبية", ipa: "/ˈsteθ.ə.skoʊp/"},
+            {en: "suffer", ar: "يعاني", ipa: "/ˈsʌf.ɚ/"},
+            {en: "surgery", ar: "جراحة", ipa: "/ˈsɝː.dʒɚ.i/"},
+            {en: "symptom", ar: "عرض", ipa: "/ˈsɪmp.təm/"},
+            {en: "temporary", ar: "مؤقت - وقتي", ipa: "/ˈtem.pə.rer.i/"},
+            {en: "treatment", ar: "علاج - معاملة - معالجة", ipa: "/ˈtriːt.mənt/"},
+            {en: "unconscious", ar: "غير واع", ipa: "/ʌnˈkɑːn.ʃəs/"},
+            {en: "viral", ar: "فيروسي", ipa: "/ˈvaɪ.rəl/"},
+            {en: "visible", ar: "مرئي", ipa: "/ˈvɪz.ə.bəl/"},
+            {en: "witness", ar: "يشهد", ipa: "/ˈwɪt.nəs/"}
+        ];
+
+        const container = document.getElementById('container');
+        let currentRate = 0.9;
+
+        // تحميل الأصوات للتأكد من التقاط الصوت الأمريكي
+        let synth = window.speechSynthesis;
+        let voices = [];
+        function populateVoices() { voices = synth.getVoices(); }
+        populateVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        function renderCards(list) {
+            container.innerHTML = '';
+            list.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = (e) => {
+                    if(e.target.tagName !== 'BUTTON') speak(item.en);
+                };
+                
+                // استخدام الترانسكريبشن إن وُجد
+                let ipaHtml = item.ipa ? `<span class="ipa-text">🇺🇸 ${item.ipa}</span>` : "";
+
+                card.innerHTML = `
+                    <button class="speak-btn" onclick="speak('${item.en.replace(/'/g, "\\'")}')">🔊</button>
+                    <div class="text-content">
+                        <span class="en-word">${item.en}</span>
+                        ${ipaHtml}
+                        <span class="ar-word">${item.ar}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function speak(text) {
+            if (!synth) return alert("جهازك لا يدعم النطق.");
+            synth.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; 
+            
+            // إجبار النظام على استخدام الصوت الأمريكي لو متاح
+            if(voices.length > 0) {
+                let usVoice = voices.find(v => v.lang === 'en-US' || v.name.includes('US') || v.name.includes('United States'));
+                if(usVoice) utterance.voice = usVoice;
+            }
+
+            utterance.rate = currentRate; 
+            synth.speak(utterance);
+        }
+
+        function filterCards() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = vocabList.filter(item => 
+                item.en.toLowerCase().includes(query) || 
+                item.ar.includes(query)
+            );
+            renderCards(filtered);
+        }
+
+        function updateSpeedLabel() {
+            const slider = document.getElementById('speed-slider');
+            const display = document.getElementById('speed-display');
+            currentRate = parseFloat(slider.value);
+            display.innerText = `السرعة: ${currentRate}x`;
+        }
+
+        // تشغيل العرض الأساسي
+        renderCards(vocabList);
+    </script>
+</body>
+</html>

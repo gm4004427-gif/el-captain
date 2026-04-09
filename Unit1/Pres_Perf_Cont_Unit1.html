@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El-Captain - Present Perfect Continuous</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #10b981; --accent: #f59e0b; --danger: #ef4444; 
+            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #1e293b; --input-border: #3b82f6;
+        }
+        body.light-mode {
+            --bg: #f1f5f9; --surface: #ffffff; --text-main: #0f172a; --text-muted: #475569;
+            --input-bg: #ffffff; --input-border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 130px; transition: 0.3s; overflow-x: hidden;}
+        
+        body.secure-mode { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input.text-input, input[type="radio"] { user-select: auto !important; -webkit-user-select: auto !important; }
+
+        /* Header */
+        .instructor-header {
+            background: var(--surface); padding: 10px 20px; border-bottom: 2px solid var(--primary); 
+            box-shadow: 0 0 15px var(--primary-glow); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.3s;
+        }
+        .header-title { text-align: right; }
+        .exam-title-en { font-weight: 900; font-size: 1.2rem; color: var(--text-main); direction: ltr; margin-bottom: 3px;}
+        .phone-number { font-size: 0.9rem; color: var(--text-main); letter-spacing: 1px; font-weight: bold; margin-bottom: 2px; }
+        .teacher-name { color: var(--primary); font-size: 1rem; font-weight: bold; }
+        .captain-badge { background: var(--accent); color: #000; padding: 2px 5px; border-radius: 5px; font-size: 0.8rem; margin-right: 5px;}
+
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        .social-btn { text-decoration: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
+        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-wa { background-color: #25D366; }
+        .btn-fb { background-color: #1877F2; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .theme-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+
+        .container { flex: 1; padding: 15px; max-width: 950px; margin: 0 auto; width: 100%; }
+        .screen { display: none; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .screen.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .btn { background: linear-gradient(45deg, var(--primary), #2563eb); color: white; border: none; padding: 15px 20px; font-size: 1.2rem; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px var(--primary-glow); width: 100%; transition: all 0.3s;}
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px var(--primary-glow); }
+        .btn-alt { background: linear-gradient(45deg, var(--secondary), #059669); box-shadow: 0 4px 15px var(--secondary-glow);}
+        .btn-next { background: linear-gradient(45deg, var(--accent), #d97706); color: #000; font-size: 1.4rem; padding: 15px; border-radius: 12px; margin-top: 20px; display: none; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4); border: 2px solid #fff;}
+
+        .text-input { width: 100%; max-width: 400px; padding: 15px; font-size: 1.3rem; border-radius: 12px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text-main); text-align: center; outline: none; margin-bottom: 10px;}
+        
+        .gender-toggle { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .gender-btn { background: var(--bg); color: var(--text-muted); border: 2px solid var(--text-muted); padding: 12px 30px; border-radius: 15px; cursor: pointer; font-size: 1.3rem; font-weight: bold; transition: 0.3s; }
+        .gender-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+
+        /* Dashboard Choices */
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        @media(max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
+        .dash-card { background: var(--surface); padding: 30px 20px; border-radius: 20px; text-align: center; cursor: pointer; border: 2px solid var(--input-border); transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2);}
+        .dash-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+        /* الشرح باستفاضة */
+        .study-area { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #334155; line-height: 1.8; font-size: 1.25rem; }
+        .study-section { margin-bottom: 35px; padding-bottom: 20px; border-bottom: 1px dashed #475569; }
+        .study-section:last-child { border-bottom: none; }
+        .study-h3 { color: var(--accent); font-size: 1.7rem; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; font-weight: 900;}
+        .study-p { margin-bottom: 15px; }
+        .example-box { background: rgba(0,0,0,0.2); border-right: 5px solid var(--secondary); padding: 15px; border-radius: 8px; margin: 15px 0; direction: ltr; text-align: left; font-family: Arial, sans-serif;}
+        .wrong-ex { border-right-color: var(--danger); background: rgba(239, 68, 68, 0.05); }
+        .en-txt { color: var(--primary); font-weight: bold; }
+        .ar-label { background: var(--secondary); color: #000; padding: 2px 8px; border-radius: 5px; font-size: 0.9rem; margin-left: 10px; font-weight: 900; float: right; direction: rtl;}
+        .hl-red { color: #fca5a5; font-weight: bold; }
+        .hl-green { color: #6ee7b7; font-weight: bold; }
+
+        /* Quiz UI */
+        .quiz-container { background: var(--surface); padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; border: 1px solid #334155;}
+        .progress-container { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden;}
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); width: 0%; transition: width 0.5s;}
+
+        .question-text { font-size: 1.6rem; margin-bottom: 30px; font-weight: 900; direction: ltr; text-align: left; color: var(--primary); text-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+        .options-grid { display: flex; flex-direction: column; gap: 12px;}
+        .opt-btn { background: #1e293b; color: var(--text-main); border: 2px solid #475569; padding: 18px; font-size: 1.3rem; font-weight: bold; border-radius: 15px; cursor: pointer; transition: all 0.3s; width: 100%; text-align: left; direction: ltr;}
+        .opt-btn:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); transform: translateY(-3px);}
+        .opt-btn.correct { background: var(--secondary); border-color: var(--secondary); color: white;}
+        .opt-btn.wrong { background: var(--danger); border-color: var(--danger); color: white;}
+
+        .feedback-box { display: none; background: rgba(239, 68, 68, 0.1); border: 2px dashed var(--danger); border-radius: 15px; padding: 20px; margin-top: 20px; text-align: right; font-size: 1.2rem; direction: rtl;}
+        .motivation-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, var(--secondary), #059669); color: white; padding: 15px 40px; font-size: 1.8rem; font-weight: 900; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: bottom 0.5s; z-index: 9999; text-align: center; pointer-events: none;}
+        .motivation-toast.show { bottom: 40px; }
+
+        /* Certificate */
+        .cert-new-container { background-color: #111827; border: 3px solid var(--accent); border-radius: 20px; padding: 40px 20px; color: white; text-align: center; position: relative; overflow: hidden;}
+        body.light-mode .cert-new-container { background-color: #1e293b; }
+        .cert-name { color: var(--accent); font-size: 2.8rem; font-weight: bold; margin: 15px 0;}
+        .gauge-container { position: relative; width: 200px; height: 100px; overflow: hidden; margin: 20px auto; }
+        .gauge-bg { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 20px solid #334155; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(45deg); }
+        .gauge-fill { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 20px solid #10b981; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1.5s;}
+        .gauge-text { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 2.5rem; font-weight: 900; color: white; }
+    </style>
+</head>
+<body class="secure-mode">
+
+    <div class="instructor-header">
+        <div class="header-title">
+            <div class="exam-title-en">Grammar: Present Perfect Continuous</div>
+            <div class="phone-number">📞 01007607035</div>
+            <div class="teacher-name">Mr. Gamal Abo Eish <span class="captain-badge">El-Captain</span></div>
+        </div>
+        <div class="header-controls">
+            <a href="https://www.instagram.com/g.aboaish?igsh=MWUxbmJjOXBqMXI0NA==" target="_blank" class="social-btn btn-ig">📸 إنستجرام</a>
+            <a href="https://www.facebook.com/share/1HCVHKyLVT/" target="_blank" class="social-btn btn-fb">📘 فيسبوك</a>
+            <a href="https://wa.me/201007607035" target="_blank" class="social-btn btn-wa">💬 واتساب</a>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <div id="toast-msg" class="motivation-toast">ممتاز!</div>
+
+    <div class="container">
+        <div id="screen-intro" class="screen active" style="text-align: center; margin-top: 5vh;">
+            <h1 style="font-size: 2.6rem; color: var(--primary);">المعلم الصغير: المضارع التام المستمر ⏳</h1>
+            <h2 style="color: var(--text-muted); margin-bottom: 30px;">شرح متعمق + تحدي الـ 30 سؤال عشوائي</h2>
+            
+            <input type="text" id="student-name" class="text-input" placeholder="اكتب اسمك الثلاثي هنا..." autocomplete="off"><br>
+            
+            <div class="gender-toggle">
+                <button class="gender-btn active" id="btn-male" onclick="setGender('M')">👦 بطل</button>
+                <button class="gender-btn" id="btn-female" onclick="setGender('F')">👧 بطلة</button>
+            </div>
+
+            <div class="dash-grid" id="action-buttons" style="display: none;">
+                <div class="dash-card" onclick="showStudy()">
+                    <h3 style="color: var(--secondary);">📖 شرح مستر جمال</h3>
+                    <p>افهم التريكات والفرق بين التام البسيط والتام المستمر.</p>
+                </div>
+                <div class="dash-card" style="border-color: var(--danger);" onclick="startQuiz()">
+                    <h3 style="color: var(--danger);">🔥 تحدي الـ 30 سؤال</h3>
+                    <p>اختبار شامل لضمان الفهم العميق للقاعدة.</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-alt" id="login-btn" style="max-width: 400px; padding: 18px; font-size: 1.4rem;" onclick="login()">دخول للمراجعة</button>
+        </div>
+
+        <div id="screen-study" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--accent); font-size: 2rem;">⏳ المضارع التام المستمر (استفاضة)</h2>
+                <button class="btn" style="width: auto; padding: 10px 20px; background: var(--danger);" onclick="goHome()">رجوع</button>
+            </div>
+            
+            <div class="study-area">
+                <div class="study-section">
+                    <h3 class="study-h3">1️⃣ التكوين (Form) والاستخدام الأساسي</h3>
+                    <p>يتكون من: <span class="en-txt">Subj. + have / has + been + (inf. + ing)</span>.</p>
+                    <p><strong>استخداماته:</strong><br>
+                    - حدث بدأ في الماضي وما زال مستمراً حتى الآن (أو يحدث بانتظام).<br>
+                    - حدث في الماضي له أثر على الحاضر (جملة الأثر تكون <span class="hl-green">مضارع</span>).</p>
+                    <div class="example-box">
+                        I <span class="en-txt">have been preparing</span> for my wedding since last month.<br>
+                        We <span class="en-txt">have been waiting</span> for the train for more than an hour.<br>
+                        She is tired. She <span class="en-txt">has been working</span> all day. <span class="ar-label">أثر في الحاضر</span>
+                    </div>
+                    <p>⚠️ <strong>انتبه:</strong> لو جملة الأثر <span class="hl-red">ماضي</span>، يكون السبب (ماضي تام بسيط أو مستمر).</p>
+                    <div class="example-box wrong-ex">
+                        She <span class="hl-red">was</span> tired. She <span class="hl-red">had been working</span> all day.
+                    </div>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">2️⃣ الكلمات الدالة (Keywords)</h3>
+                    <p>يُستخدم مع ظروف مثل: <span class="en-txt">since... / for... / for... now / recently / lately</span>.</p>
+                    <div class="example-box">
+                        They have been doing homework <span class="en-txt">since 6 o'clock</span>.<br>
+                        It has been raining <span class="en-txt">for three days now</span>.
+                    </div>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">3️⃣ متى يُمنع استخدام التام المستمر؟ (تريكات الامتحان 🚨)</h3>
+                    <p>نستخدم <strong>المضارع التام البسيط</strong> (بدلاً من المستمر) في 3 حالات مهمة جداً:</p>
+                    <ul style="margin-right: 20px; line-height: 2;">
+                        <li><strong>الأفعال اللحظية:</strong> التي لا تستغرق وقتاً طويلاً (مثل: receive, break, stop).<br>
+                        <span class="en-txt" style="font-size:1.1rem">I <span class="hl-green">have received</span> an important email. <span style="color:var(--danger)">(Not: have been receiving)</span></span></li>
+                        
+                        <li><strong>عند ذكر عدد مرات حدوث الفعل أو الكمية:</strong> (لو لقيت: two/three/many/a few/all + المفعول).<br>
+                        <span class="en-txt" style="font-size:1.1rem">I <span class="hl-green">have sent</span> three emails. <span style="color:var(--danger)">(Not: have been sending)</span></span><br>
+                        <span class="en-txt" style="font-size:1.1rem">My cousin <span class="hl-green">has eaten</span> all the apples. <span style="color:var(--danger)">(Not: has been eating)</span></span></li>
+                        
+                        <li><strong>أفعال الحواس والمشاعر والتملك والإدراك (Stative Verbs):</strong> مثل (know, own, like, believe).<br>
+                        <span class="en-txt" style="font-size:1.1rem">I <span class="hl-green">have known</span> him for five years now. <span style="color:var(--danger)">(Not: have been knowing)</span></span></li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">4️⃣ الروابط (because / as / since / so)</h3>
+                    <p>علاقة السبب والنتيجة بين (المضارع التام) و (المضارع/المستقبل):</p>
+                    <div class="example-box">
+                        <span class="ar-label">Because / As</span>
+                        He <span class="en-txt">is</span> sad <span class="hl-green">because</span> his father <span class="en-txt">has been shouting</span> at him.<br>
+                        <span class="ar-label">So / That's why</span>
+                        I <span class="en-txt">have been working</span> all day. <span class="hl-green">That's why</span> I <span class="en-txt">feel</span> exhausted.
+                    </div>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">5️⃣ الفرق الدقيق: (بسيط) أم (مستمر)؟</h3>
+                    <ul style="margin-right: 20px; line-height: 2;">
+                        <li><strong>المضارع التام البسيط</strong> يركز على <strong>نتيجة واكتمال</strong> الحدث.<br>
+                        <span class="en-txt" style="font-size:1.1rem">Omar <span class="hl-green">has read</span> a lot of books. He is a real expert. (التركيز على النتيجة: أصبح خبيراً)</span></li>
+                        
+                        <li><strong>المضارع التام المستمر</strong> يركز على <strong>الحدث نفسه واستغراقه للوقت</strong>.<br>
+                        <span class="en-txt" style="font-size:1.1rem">Sarah <span class="hl-green">has been taking</span> Arabic lessons since she arrived. (التركيز على الاستمرارية)</span></li>
+                    </ul>
+                    <p>💡 <strong>ملحوظة:</strong> في حالة استغراق الحدث "لمدة زمنية طويلة" يمكن استخدام الزمنين، لكن <strong>الأفضلية للتام المستمر</strong>.<br>
+                    <span class="en-txt">I have been living here since 1999.</span> (أفضل من have lived)</p>
+                </div>
+
+                <button class="btn btn-alt" style="margin-top: 20px; font-size: 1.4rem; padding: 15px;" onclick="startQuiz()">جاهز للتحدي؟ ابدأ الاختبار 🔥</button>
+            </div>
+        </div>
+
+        <div id="screen-quiz" class="screen">
+            <div class="quiz-container">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;">
+                    <span id="quiz-progress" style="color: var(--text-muted); font-weight: bold; font-size: 1.2rem;">سؤال 1 / 30</span>
+                    <button class="btn" style="width: auto; padding: 8px 15px; font-size: 1rem; background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger);" onclick="goHome()">خروج 🔙</button>
+                </div>
+                
+                <div id="question-text" class="question-text">Question?</div>
+                <div id="options-container" class="options-grid"></div>
+                
+                <div id="feedback-box" class="feedback-box"></div>
+                <button id="next-btn" class="btn btn-next" onclick="nextQuestion()">قرأت السبب.. التالي ➡️</button>
+            </div>
+        </div>
+
+        <div id="screen-result" class="screen">
+            <div class="cert-new-container" id="capture-cert">
+                <h2 style="color: #2dd4bf; margin-bottom: 10px; font-size: 2.2rem;">📜 شهادة إتقان القواعد</h2>
+                <div style="font-size: 1.3rem;" id="cert-title">إلى البطل:</div>
+                <div class="cert-name" id="cert-name">الاسم</div>
+                <div id="cert-desc" style="color: var(--text-muted); font-size: 1.1rem;">لاجتياز تحدي (المضارع التام المستمر) بنسبة دقة:</div>
+                
+                <div class="gauge-container">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" id="gauge-fill"></div>
+                    <div class="gauge-text" id="cert-score">0%</div>
+                </div>
+                <div style="color: var(--primary); font-weight: 900; font-size: 1.4rem; margin-top: 15px;">Mr. Gamal Abo Eish - El-Captain</div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap;">
+                <button class="btn btn-alt" style="flex: 1; min-width: 200px;" onclick="downloadCert()">📥 تنزيل الشهادة</button>
+                <button class="btn btn-wa" style="flex: 1; min-width: 200px; background: #25D366;" onclick="sendWhatsApp()">💬 إرسال النتيجة</button>
+                <button class="btn" style="flex: 1; min-width: 200px; background: var(--surface); color: var(--text-main);" onclick="goHome()">الرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProtectionActive = true;
+        document.addEventListener('contextmenu', e => { if(isProtectionActive) e.preventDefault() });
+        document.addEventListener('copy', e => { if(isProtectionActive) e.preventDefault() });
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        const rawQuestions = [
+            { q: "We ........... for the train for more than an hour.", ans: "have been waiting", opts: ["have been waiting", "are waiting", "waited", "have waited"], reason: "حدث بدأ في الماضي ومازال مستمراً (وجود for + مدة)، ويفضل المستمر." },
+            { q: "Nada ........... Arabic since 5 o'clock.", ans: "has been studying", opts: ["has been studying", "has studied", "is studying", "studies"], reason: "حدث مستمر بدأ في الماضي (since)، نستخدم مضارع تام مستمر." },
+            { q: "It ........... heavily for the last three days.", ans: "has been raining", opts: ["has been raining", "has rained", "is raining", "was raining"], reason: "للتركيز على استمرارية الحدث لفترة طويلة نستخدم التام المستمر." },
+            { q: "She is tired. She ........... all day.", ans: "has been working", opts: ["has been working", "had been working", "is working", "works"], reason: "جملة الأثر في الحاضر (is tired)، إذن السبب يجب أن يكون مضارع تام مستمر (has been working)." },
+            { q: "She was tired. She ........... all day.", ans: "had been working", opts: ["had been working", "has been working", "has worked", "was working"], reason: "جملة الأثر في الماضي (was tired)، إذن السبب يجب أن يكون ماضي تام مستمر." },
+            { q: "I ........... an important email.", ans: "have received", opts: ["have received", "have been receiving", "am receiving", "was receiving"], reason: "الفعل receive فعل لحظي لا يستغرق وقتاً طويلاً، لذا نستخدم تام بسيط فقط." },
+            { q: "I ........... three emails so far.", ans: "have sent", opts: ["have sent", "have been sending", "am sending", "was sending"], reason: "عند ذكر العدد (three emails) نستخدم المضارع التام البسيط وليس المستمر." },
+            { q: "My cousin ........... all the apples in the kitchen.", ans: "has eaten", opts: ["has eaten", "has been eating", "is eating", "ate"], reason: "عند ذكر الكمية المكتملة (all the apples) نستخدم التام البسيط ليدل على اكتمال الحدث." },
+            { q: "I ........... him for five years now.", ans: "have known", opts: ["have known", "have been knowing", "knew", "am knowing"], reason: "الفعل know من أفعال الإدراك (Stative) ولا يوضع في صيغة الاستمرار." },
+            { q: "He is sad because his father ........... at him.", ans: "has been shouting", opts: ["has been shouting", "had been shouting", "was shouting", "shouted"], reason: "النتيجة في الحاضر (is sad)، لذا نستخدم مضارع تام مستمر للتعبير عن الحدث المسبب." },
+            { q: "His father has been shouting at him, ........... he is sad.", ans: "so", opts: ["so", "because", "as", "since"], reason: "نحتاج رابط يعبر عن النتيجة، (so) يربط السبب بالنتيجة الحاضرة." },
+            { q: "I ........... in Edfu since 1999.", ans: "have been living", opts: ["have been living", "am living", "was living", "live"], reason: "الحدث مستمر لفترة طويلة (من 1999)، فالمضارع التام المستمر هو الأصح." },
+            { q: "Omar ........... a lot of books on farming. He is a real expert now.", ans: "has read", opts: ["has read", "has been reading", "is reading", "read"], reason: "التركيز هنا على نتيجة واكتمال الحدث (أصبح خبيراً)، لذا نستخدم التام البسيط." },
+            { q: "Sarah ........... Arabic lessons since she arrived in Cairo.", ans: "has been taking", opts: ["has been taking", "takes", "took", "is taking"], reason: "التركيز هنا على استمرارية الحدث بشكل منتظم منذ وصولها، لذا نستخدم المستمر." },
+            { q: "I am dead tired. I ........... hard.", ans: "have been working", opts: ["have been working", "had been working", "am working", "work"], reason: "الأثر في الحاضر (am tired) يتطلب سبب في المضارع التام المستمر." },
+            { q: "I was dead tired. I ........... hard.", ans: "had been working", opts: ["had been working", "have been working", "have worked", "was working"], reason: "الأثر في الماضي (was tired) يتطلب سبب في الماضي التام المستمر." },
+            { q: "How long ........... for this company?", ans: "have you been working", opts: ["have you been working", "are you working", "did you work", "do you work"], reason: "السؤال بـ How long عن حدث ما زال مستمراً يأخذ مضارع تام مستمر." },
+            { q: "How many cups of coffee ........... today?", ans: "have you drunk", opts: ["have you drunk", "have you been drinking", "did you drink", "do you drink"], reason: "السؤال عن (الكمية/العدد How many) يأخذ مضارع تام بسيط فقط." },
+            { q: "I ........... this car since 2015.", ans: "have owned", opts: ["have owned", "have been owning", "owned", "am owning"], reason: "الفعل own فعل تملك (Stative) لا يأتي في الاستمرار." },
+            { q: "The boys are dirty because they ........... in the mud.", ans: "have been playing", opts: ["have been playing", "had been playing", "are playing", "played"], reason: "نتيجة في الحاضر (are dirty) لحدث استغرق وقتاً (playing)، نستخدم تام مستمر." },
+            { q: "She ........... her finger. It's bleeding!", ans: "has cut", opts: ["has cut", "has been cutting", "cuts", "was cutting"], reason: "الفعل cut (يجرح) حدث لحظي، لا نستخدم معه المستمر." },
+            { q: "I ........... to call you all morning! Where were you?", ans: "have been trying", opts: ["have been trying", "have tried", "am trying", "try"], reason: "التركيز على الاستمرارية (all morning) يتطلب تام مستمر." },
+            { q: "Someone ........... my chocolates. The box is empty!", ans: "has eaten", opts: ["has eaten", "has been eating", "ate", "eats"], reason: "النتيجة أن العلبة (فارغة)، إذن الحدث مكتمل ونتيجته واضحة فنستخدم تام بسيط." },
+            { q: "Someone ........... my chocolates. There are only a few left.", ans: "has been eating", opts: ["has been eating", "has eaten", "ate", "eats"], reason: "بما أن هناك (قليل متبقي)، الحدث لم يكتمل كلياً أو كان مستمراً، نستخدم المستمر." },
+            { q: "We ........... each other since we were kids.", ans: "have known", opts: ["have known", "have been knowing", "know", "are knowing"], reason: "الفعل know من أفعال الحالة (لا يأتي مستمر)." },
+            { q: "He ........... five chapters of the novel.", ans: "has finished", opts: ["has finished", "has been finishing", "finished", "is finishing"], reason: "ذكر العدد (five chapters) يمنع استخدام المستمر." },
+            { q: "He ........... that novel for a week, but he hasn't finished it yet.", ans: "has been reading", opts: ["has been reading", "has read", "reads", "read"], reason: "الحدث مستمر ولم ينتهِ (hasn't finished yet) نستخدم تام مستمر." },
+            { q: "I feel exhausted as I ........... without a break.", ans: "have been working", opts: ["have been working", "had been working", "am working", "worked"], reason: "الرابط as يعطي سبب لنتيجة حاضرة (feel)، نستخدم تام مستمر." },
+            { q: "They ........... homework since 6 o'clock.", ans: "have been doing", opts: ["have been doing", "have done", "did", "are doing"], reason: "حدث بدأ في وقت محدد (since) وما زال مستمراً." },
+            { q: "It ........... for three days now.", ans: "has been raining", opts: ["has been raining", "has rained", "is raining", "rained"], reason: "المدة (for ... now) تدل على استمرارية الحدث بقوة." }
+        ];
+
+        const praiseMale = ["ممتاز يا بطل! 🌟", "عاش يا بطل! 🔥", "أنت فخر لمستر جمال! 👑", "استمر يا وحش! 💪"];
+        const praiseFemale = ["ممتازة يا بطلة! 🌟", "عاش يا بطلة! 🔥", "أنتِ فخر لمستر جمال! 👑", "استمري يا متفوقة! 💪"];
+
+        let studentName = "", studentGender = "M", quizData = [], qIndex = 0, score = 0, audioCtx;
+
+        function setGender(g) {
+            studentGender = g;
+            document.getElementById('btn-male').classList.toggle('active', g === 'M');
+            document.getElementById('btn-female').classList.toggle('active', g === 'F');
+        }
+
+        function login() {
+            studentName = document.getElementById('student-name').value.trim();
+            if(!studentName) return alert("الرجاء كتابة اسمك يا بطل للمتابعة!");
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('action-buttons').style.display = 'grid';
+        }
+
+        function goHome() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-intro').classList.add('active');
+        }
+
+        function showStudy() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-study').classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if(type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function showVisualMotivation() {
+            let praiseList = studentGender === 'M' ? praiseMale : praiseFemale;
+            let text = praiseList[Math.floor(Math.random() * praiseList.length)];
+            let toast = document.getElementById('toast-msg');
+            toast.innerText = text; 
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1500);
+        }
+
+        function startQuiz() {
+            initAudio(); 
+            quizData = [...rawQuestions].sort(() => 0.5 - Math.random()).slice(0, 30);
+            quizData.forEach(q => { q.opts = q.opts.sort(() => 0.5 - Math.random()); });
+            qIndex = 0; score = 0;
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-quiz').classList.add('active');
+            renderQ();
+        }
+
+        function renderQ() {
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback-box').style.display = 'none';
+            document.getElementById('progress-bar').style.width = `${(qIndex / quizData.length) * 100}%`;
+            
+            let q = quizData[qIndex];
+            document.getElementById('quiz-progress').innerText = `سؤال ${qIndex + 1} / ${quizData.length}`;
+            document.getElementById('question-text').innerText = q.q;
+
+            let optsBox = document.getElementById('options-container');
+            optsBox.innerHTML = '';
+            q.opts.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'opt-btn'; btn.innerText = opt;
+                btn.onclick = () => checkAns(btn, opt, q.ans, q.reason);
+                optsBox.appendChild(btn);
+            });
+        }
+
+        function checkAns(btn, selected, correct, reason) {
+            document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+            if(selected === correct) {
+                btn.classList.add('correct'); score++;
+                playSound('correct'); showVisualMotivation(); 
+                setTimeout(nextQuestion, 1500); 
+            } else {
+                btn.classList.add('wrong'); playSound('wrong');
+                document.querySelectorAll('.opt-btn').forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+                let fb = document.getElementById('feedback-box');
+                fb.style.display = 'block';
+                fb.innerHTML = `❌ <strong>خطأ!</strong> الصح هو: <span class="en-txt">${correct}</span><br><br>💡 <strong>السبب:</strong> ${reason}`;
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }
+
+        function nextQuestion() {
+            qIndex++;
+            if(qIndex < quizData.length) renderQ();
+            else finishQuiz();
+        }
+
+        function finishQuiz() {
+            isProtectionActive = false; document.body.classList.remove('secure-mode');
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('progress-bar').style.width = `100%`;
+            document.getElementById('cert-title').innerText = studentGender === 'M' ? "إلى البطل:" : "إلى البطلة:";
+            let percent = Math.round((score / quizData.length) * 100);
+            
+            localStorage.setItem('Sec3_Unit1_PresPerfCont_Score', percent);
+            
+            document.getElementById('cert-name').innerText = studentName;
+            document.getElementById('cert-score').innerText = percent + "%";
+            setTimeout(() => { document.getElementById('gauge-fill').style.transform = `rotate(${-135 + (percent * 1.8)}deg)`; }, 500);
+            if(percent >= 50) confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 } });
+        }
+
+        function downloadCert() {
+            html2canvas(document.getElementById('capture-cert'), {backgroundColor: '#111827', scale: 2}).then(canvas => {
+                let a = document.createElement('a'); a.download = `Cert_${studentName}.png`; a.href = canvas.toDataURL(); a.click();
+            });
+        }
+
+        function sendWhatsApp() {
+            let hero = studentGender === 'M' ? 'البطل' : 'البطلة';
+            let msg = encodeURIComponent(`مرحباً مستر جمال 🌟\nأنا ${hero}: *${studentName}*\nأنهيت تحدي (المضارع التام المستمر) بنسبة دقة: *${document.getElementById('cert-score').innerText}* 🎯`);
+            window.open(`https://wa.me/201007607035?text=${msg}`);
+        }
+    </script>
+</body>
+</html>

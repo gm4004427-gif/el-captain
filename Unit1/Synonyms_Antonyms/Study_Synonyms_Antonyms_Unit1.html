@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El-Captain - Synonyms & Antonyms</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #10b981; --secondary-glow: rgba(16, 185, 129, 0.5); --accent: #f59e0b; 
+            --text-main: #f8fafc; --text-muted: #94a3b8; --danger: #ef4444; 
+            --input-bg: #1e293b; --input-border: #3b82f6;
+        }
+
+        body.light-mode {
+            --bg: #f8fafc; --surface: #ffffff; --text-main: #0f172a; --text-muted: #475569;
+            --input-bg: #ffffff; --input-border: #cbd5e1; --primary-glow: rgba(59, 130, 246, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { 
+            background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 130px; transition: 0.3s;
+        }
+        
+        body.secure-mode { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input { user-select: auto !important; -webkit-user-select: auto !important; }
+
+        /* Header */
+        .instructor-header {
+            background: var(--surface); padding: 10px 20px; border-bottom: 2px solid var(--primary); 
+            box-shadow: 0 0 15px var(--primary-glow); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.3s;
+        }
+        .header-title { text-align: right; }
+        .exam-title-en { font-weight: 900; font-size: 1.2rem; color: var(--text-main); direction: ltr; margin-bottom: 3px;}
+        .phone-number { font-size: 0.9rem; color: var(--text-main); letter-spacing: 1px; font-weight: bold; margin-bottom: 2px; }
+        .teacher-name { color: var(--primary); font-size: 1rem; font-weight: bold; }
+        .captain-badge { background: var(--accent); color: #000; padding: 2px 5px; border-radius: 5px; font-size: 0.8rem; margin-right: 5px;}
+
+        /* Controls & Social */
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        .speed-control { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 8px; font-size: 0.9rem; border: 1px solid var(--input-border);}
+        .speed-control input { cursor: pointer; width: 80px; }
+        
+        .social-btn { text-decoration: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
+        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-wa { background-color: #25D366; }
+        .btn-fb { background-color: #1877F2; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .theme-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+
+        .container { padding: 15px; max-width: 1000px; margin: 0 auto; width: 100%; }
+
+        /* Tabs System */
+        .tabs-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap;}
+        .tab-btn { background: var(--surface); color: var(--text-muted); border: 2px solid var(--input-border); padding: 12px 30px; font-size: 1.3rem; font-weight: bold; border-radius: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);}
+        .tab-btn.active.syn { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); transform: scale(1.05);}
+        .tab-btn.active.ant { background: var(--danger); color: white; border-color: var(--danger); box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); transform: scale(1.05);}
+
+        /* Cards Layout */
+        .cards-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px; padding-bottom: 50px;
+        }
+
+        .card {
+            background: var(--surface); padding: 20px; border-radius: 20px;
+            display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 1px solid #334155;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; position: relative; overflow: hidden;
+        }
+        body.light-mode .card { border-color: #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .card.syn-card { border-right: 8px solid var(--primary); }
+        .card.ant-card { border-right: 8px solid var(--danger); }
+        
+        .card:hover { transform: translateY(-5px); }
+        .card.syn-card:hover { box-shadow: 0 10px 25px var(--primary-glow); }
+        .card.ant-card:hover { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #475569; padding-bottom: 15px;}
+        .main-word-box { display: flex; flex-direction: column; direction: ltr; text-align: left; flex: 1;}
+        .en-word { font-size: 1.6rem; font-weight: 900; color: var(--text-main); }
+        .ar-word { font-size: 1.2rem; color: var(--accent); font-weight: bold; text-align: right;}
+        
+        .speak-btn {
+            background-color: var(--surface); color: white; border: 2px solid var(--text-muted); width: 50px; height: 50px;
+            border-radius: 50%; font-size: 1.5rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            transition: all 0.3s; margin-right: 15px;
+        }
+        .card.syn-card:hover .speak-btn { background-color: var(--primary); border-color: var(--primary); transform: scale(1.1); }
+        .card.ant-card:hover .speak-btn { background-color: var(--danger); border-color: var(--danger); transform: scale(1.1); }
+
+        .related-words { font-size: 1.3rem; font-weight: bold; direction: ltr; text-align: left; line-height: 1.5; color: var(--secondary);}
+        .card.ant-card .related-words { color: #fca5a5; } /* لون فاتح للمتضادات */
+        .related-ar { font-size: 1rem; color: var(--text-muted); text-align: right; margin-top: 5px; font-weight: bold;}
+
+    </style>
+</head>
+<body class="secure-mode">
+
+    <div class="instructor-header">
+        <div class="header-title">
+            <div class="exam-title-en">Synonyms & Antonyms</div>
+            <div class="phone-number">📞 01007607035</div>
+            <div class="teacher-name">Mr. Gamal Abo Eish <span class="captain-badge">El-Captain</span></div>
+        </div>
+        <div class="header-controls">
+            <div class="speed-control">
+                <label for="voice-speed" style="font-weight: bold;">السرعة:</label>
+                <input type="range" id="voice-speed" min="0.5" max="1.5" step="0.1" value="0.9" oninput="document.getElementById('speed-val').innerText = this.value + 'x'">
+                <span id="speed-val" style="font-weight: bold; width: 30px; text-align: center;">0.9x</span>
+            </div>
+            <a href="https://www.instagram.com/g.aboaish?igsh=MWUxbmJjOXBqMXI0NA==" target="_blank" class="social-btn btn-ig">إنستجرام 📸</a>
+            <a href="https://www.facebook.com/share/1HCVHKyLVT/" target="_blank" class="social-btn btn-fb">فيسبوك 📘</a>
+            <a href="https://wa.me/201007607035" target="_blank" class="social-btn btn-wa">واتساب 💬</a>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="tabs-container">
+            <button class="tab-btn active syn" id="tab-syn" onclick="switchTab('syn')">🔗 المترادفات (Synonyms)</button>
+            <button class="tab-btn ant" id="tab-ant" onclick="switchTab('ant')">⚔️ المتضادات (Antonyms)</button>
+        </div>
+
+        <div class="cards-container" id="cards-container"></div>
+
+    </div>
+
+    <script>
+        // حماية المحتوى
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('copy', e => e.preventDefault());
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        // قاعدة بيانات المترادفات (من الصورة)
+        const synonymsData = [
+            { word: "attention(n)", ar: "اهتمام - انتباه", related: "focus, concentration, notice" },
+            { word: "chaos(n)", ar: "فوضى", related: "disorder, confusion, turmoil" },
+            { word: "clutch (v)", ar: "يمسك بقوة", related: "grasp, grip, seize, grab" },
+            { word: "collapse (v)", ar: "ينهار / يتهاوي", related: "fall down, faint, pass out" },
+            { word: "consciousness(n)", ar: "الوعي - الإدراك", related: "awareness, alertness, wakefulness, responsiveness" },
+            { word: "emergency(n)", ar: "(حالة) طوارئ", related: "crisis, urgent situation, catastrophe" },
+            { word: "grab (v)", ar: "يمسك بشدة", related: "seize, snatch, clutch" },
+            { word: "groan (v)", ar: "يئن, يتأوه", related: "moan, sigh, grumble" },
+            { word: "heartbreaking(adj)", ar: "مؤلم - محزن", related: "distressing, tragic, upsetting, painful" },
+            { word: "pulse(n)", ar: "النبض", related: "heartbeat, beat" },
+            { word: "rewarding(adj)", ar: "مرضي - مجزي", related: "fulfilling, satisfying, worthwhile" },
+            { word: "victim(n)", ar: "ضحية", related: "casualty, injured person" }
+        ];
+
+        // قاعدة بيانات المتضادات (من الصورة)
+        const antonymsData = [
+            { word: "attention(n)", ar: "اهتمام - انتباه", related: "distraction, inattention, disregard", relatedAr: "تشتت - إهمال" },
+            { word: "chaos(n)", ar: "فوضى", related: "order, organization, harmony", relatedAr: "نظام - انسجام/تناغم" },
+            { word: "clutch, grab (v)", ar: "يمسك بشدة", related: "release, let go, drop", relatedAr: "يترك - يفلت" },
+            { word: "collapse (v)", ar: "ينهار / يتهاوي", related: "rise, stand, recover", relatedAr: "ينهض - يتعافي" },
+            { word: "consciousness(n)", ar: "الوعي - الإدراك", related: "unconsciousness, coma, insensibility", relatedAr: "الإغماء - الغيبوبة" },
+            { word: "groan (v)", ar: "يئن, يتأوه", related: "cheer, laugh, exclaim", relatedAr: "يهتف, يضحك, يفرح" },
+            { word: "heartbreaking(adj)", ar: "مؤلم - محزن", related: "uplifting, heartwarming, comforting", relatedAr: "مريح - سار" },
+            { word: "rewarding(adj)", ar: "مرضي - مجزي", related: "unrewarding, disappointing, fruitless", relatedAr: "محبط - عقيم" }
+        ];
+
+        let currentTab = 'syn'; // 'syn' أو 'ant'
+
+        // إعداد محرك الصوت الأمريكي
+        let synth = window.speechSynthesis;
+        let voices = [];
+        function populateVoices() { voices = synth.getVoices(); }
+        populateVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            const dataToRender = currentTab === 'syn' ? synonymsData : antonymsData;
+            const cardStyle = currentTab === 'syn' ? 'syn-card' : 'ant-card';
+            const icon = currentTab === 'syn' ? '🔗' : '⚔️';
+
+            dataToRender.forEach(item => {
+                // تنظيف الكلمة للنطق (إزالة الأقواس)
+                let cleanWord = item.word.replace(/\(.*?\)/g, '').trim(); 
+                
+                // النص الذي سينطقه الكمبيوتر (الكلمة ثم المترادفات أو المتضادات)
+                let speechText = `${cleanWord},,,, ${item.related}`;
+
+                let card = document.createElement('div');
+                card.className = `card ${cardStyle}`;
+                card.onclick = (e) => {
+                    if(e.target.tagName !== 'BUTTON') speak(speechText);
+                };
+
+                let relatedArHtml = item.relatedAr ? `<div class="related-ar">${item.relatedAr}</div>` : "";
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <button class="speak-btn" onclick="speak('${speechText}')" title="استمع للنطق">🔊</button>
+                        <div class="main-word-box">
+                            <span class="en-word">${item.word}</span>
+                            <span class="ar-word">${item.ar}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">${icon} ${currentTab === 'syn' ? 'Synonyms (=)' : 'Antonyms (x)'}</div>
+                        <div class="related-words">${item.related}</div>
+                        ${relatedArHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            document.getElementById('tab-syn').classList.remove('active', 'syn');
+            document.getElementById('tab-ant').classList.remove('active', 'ant');
+            
+            if(tab === 'syn') {
+                document.getElementById('tab-syn').classList.add('active', 'syn');
+            } else {
+                document.getElementById('tab-ant').classList.add('active', 'ant');
+            }
+            
+            renderCards();
+        }
+
+        function speak(text) {
+            if (!synth) return alert("جهازك لا يدعم النطق.");
+            synth.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US'; 
+            
+            // إجبار النظام على استخدام الصوت الأمريكي
+            if(voices.length > 0) {
+                let usVoice = voices.find(v => v.lang === 'en-US' || v.name.includes('US') || v.name.includes('United States'));
+                if(usVoice) utterance.voice = usVoice;
+            }
+
+            let speed = parseFloat(document.getElementById('voice-speed').value) || 0.9;
+            utterance.rate = speed; 
+            synth.speak(utterance);
+        }
+
+        // تشغيل العرض الأساسي عند تحميل الصفحة
+        renderCards();
+    </script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El-Captain - Writing Skills (Blog Post)</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #10b981; --accent: #f59e0b; --danger: #ef4444; 
+            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #1e293b; --input-border: #3b82f6;
+        }
+        body.light-mode {
+            --bg: #f1f5f9; --surface: #ffffff; --text-main: #0f172a; --text-muted: #475569;
+            --input-bg: #ffffff; --input-border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 130px; transition: 0.3s; overflow-x: hidden;}
+        
+        body.secure-mode { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input.text-input, input[type="radio"], input[type="range"] { user-select: auto !important; -webkit-user-select: auto !important; }
+
+        /* Header */
+        .instructor-header {
+            background: var(--surface); padding: 10px 20px; border-bottom: 2px solid var(--primary); 
+            box-shadow: 0 0 15px var(--primary-glow); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.3s;
+        }
+        .header-title { text-align: right; }
+        .exam-title-en { font-weight: 900; font-size: 1.2rem; color: var(--text-main); direction: ltr; margin-bottom: 3px;}
+        .phone-number { font-size: 0.9rem; color: var(--text-main); letter-spacing: 1px; font-weight: bold; margin-bottom: 2px; }
+        .teacher-name { color: var(--primary); font-size: 1rem; font-weight: bold; }
+        .captain-badge { background: var(--accent); color: #000; padding: 2px 5px; border-radius: 5px; font-size: 0.8rem; margin-right: 5px;}
+
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        .social-btn { text-decoration: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
+        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-wa { background-color: #25D366; }
+        .btn-fb { background-color: #1877F2; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .theme-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+
+        .container { flex: 1; padding: 15px; max-width: 900px; margin: 0 auto; width: 100%; }
+        .screen { display: none; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .screen.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .btn { background: linear-gradient(45deg, var(--primary), #2563eb); color: white; border: none; padding: 15px 20px; font-size: 1.2rem; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px var(--primary-glow); width: 100%; transition: all 0.3s;}
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px var(--primary-glow); }
+        .btn-alt { background: linear-gradient(45deg, var(--secondary), #059669); box-shadow: 0 4px 15px var(--secondary-glow);}
+        .btn-next { background: linear-gradient(45deg, var(--accent), #d97706); color: #000; font-size: 1.4rem; padding: 15px; border-radius: 12px; margin-top: 20px; display: none; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4); border: 2px solid #fff;}
+
+        .text-input { width: 100%; max-width: 400px; padding: 15px; font-size: 1.3rem; border-radius: 12px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text-main); text-align: center; outline: none; margin-bottom: 10px;}
+        
+        .gender-toggle { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .gender-btn { background: var(--bg); color: var(--text-muted); border: 2px solid var(--text-muted); padding: 12px 30px; border-radius: 15px; cursor: pointer; font-size: 1.3rem; font-weight: bold; transition: 0.3s; }
+        .gender-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); transform: scale(1.05);}
+
+        /* Dashboard Choices */
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        @media(max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
+        .dash-card { background: var(--surface); padding: 30px 20px; border-radius: 20px; text-align: center; cursor: pointer; border: 2px solid var(--input-border); transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2);}
+        .dash-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);}
+        .dash-card h3 { font-size: 1.8rem; margin-bottom: 10px; color: var(--text-main); }
+        .dash-card p { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* Study Area Formatting */
+        .study-area { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #334155; line-height: 1.8; font-size: 1.2rem; }
+        .study-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #475569; }
+        .study-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .study-h3 { color: var(--accent); font-size: 1.6rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;}
+        .study-en { color: var(--primary); font-weight: bold; direction: ltr; display: inline-block; }
+        .study-list { margin-right: 20px; list-style-type: square; }
+        .study-list li { margin-bottom: 10px; }
+        .hl-red { color: #fca5a5; font-weight: bold; }
+        .hl-green { color: #6ee7b7; font-weight: bold; }
+        
+        /* Colorful Example Box */
+        .example-box { background: #1e293b; border: 2px solid var(--secondary); border-radius: 15px; padding: 25px; margin-top: 20px; position: relative; direction: ltr; text-align: left; font-family: Arial, sans-serif;}
+        .ex-label { font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-right: 5px; vertical-align: super;}
+        .ex-title { color: #fcd34d; font-size: 1.8rem; font-weight: 900; text-align: center; margin-bottom: 20px; border-bottom: 2px dashed #475569; padding-bottom: 10px;}
+        .ex-p { margin-bottom: 15px; font-size: 1.1rem; line-height: 1.6; color: #f8fafc;}
+        .tag-hook { background: #ef4444; color: white; }
+        .tag-intro { background: #3b82f6; color: white; }
+        .tag-trans { background: #8b5cf6; color: white; }
+        .tag-cta { background: #10b981; color: white; }
+
+        /* Quiz UI */
+        .quiz-container { background: var(--surface); padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; border: 1px solid #334155;}
+        .progress-container { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden;}
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); width: 0%; transition: width 0.5s;}
+
+        .question-text { font-size: 1.5rem; margin-bottom: 30px; font-weight: 900; direction: ltr; text-align: left; color: var(--primary);}
+        .options-grid { display: flex; flex-direction: column; gap: 12px;}
+        .opt-btn { background: #1e293b; color: var(--text-main); border: 2px solid #475569; padding: 18px; font-size: 1.2rem; font-weight: bold; border-radius: 15px; cursor: pointer; transition: 0.3s; width: 100%; text-align: left; direction: ltr;}
+        .opt-btn:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); transform: translateY(-3px);}
+        .opt-btn.correct { background: var(--secondary); border-color: var(--secondary); color: white;}
+        .opt-btn.wrong { background: var(--danger); border-color: var(--danger); color: white; animation: shake 0.4s;}
+        
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-10px); } 50% { transform: translateX(10px); } }
+
+        .feedback-box { display: none; background: rgba(239, 68, 68, 0.1); border: 2px dashed var(--danger); border-radius: 15px; padding: 20px; margin-top: 20px; text-align: right; font-size: 1.2rem;}
+
+        .motivation-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, var(--secondary), #059669); color: white; padding: 15px 40px; font-size: 1.8rem; font-weight: 900; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: bottom 0.5s; z-index: 9999; text-align: center; pointer-events: none;}
+        .motivation-toast.show { bottom: 40px; }
+
+        /* Certificate */
+        .cert-new-container { background-color: #111827; border: 3px solid var(--accent); border-radius: 20px; padding: 40px 20px; color: white; text-align: center; position: relative; overflow: hidden;}
+        body.light-mode .cert-new-container { background-color: #1e293b; }
+        .cert-name { color: var(--accent); font-size: 2.8rem; font-weight: bold; margin: 15px 0;}
+        .gauge-container { position: relative; width: 200px; height: 100px; overflow: hidden; margin: 20px auto; }
+        .gauge-bg { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 20px solid #334155; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(45deg); }
+        .gauge-fill { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 20px solid #10b981; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1.5s;}
+        .gauge-text { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 2.5rem; font-weight: 900; color: white; }
+    </style>
+</head>
+<body class="secure-mode">
+
+    <div class="instructor-header">
+        <div class="header-title">
+            <div class="exam-title-en">Writing Skills: Blog Post</div>
+            <div class="phone-number">📞 01007607035</div>
+            <div class="teacher-name">Mr. Gamal Abo Eish <span class="captain-badge">El-Captain</span></div>
+        </div>
+        <div class="header-controls">
+            <a href="https://www.instagram.com/g.aboaish?igsh=MWUxbmJjOXBqMXI0NA==" target="_blank" class="social-btn btn-ig">إنستجرام 📸</a>
+            <a href="https://www.facebook.com/share/1HCVHKyLVT/" target="_blank" class="social-btn btn-fb">فيسبوك 📘</a>
+            <a href="https://wa.me/201007607035" target="_blank" class="social-btn btn-wa">واتساب 💬</a>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <div id="toast-msg" class="motivation-toast">ممتاز!</div>
+
+    <div class="container">
+        <div id="screen-intro" class="screen active" style="text-align: center; margin-top: 5vh;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 10px; color: var(--primary);">مهارات الكتابة ✍️<br><span style="font-size: 1.8rem; color: var(--text-main);">Writing a Blog Post</span></h1>
+            
+            <input type="text" id="student-name" class="text-input" placeholder="اكتب اسمك الثلاثي هنا..." autocomplete="off"><br>
+            
+            <div class="gender-toggle">
+                <button class="gender-btn active" id="btn-male" onclick="setGender('M')">👦 بطل</button>
+                <button class="gender-btn" id="btn-female" onclick="setGender('F')">👧 بطلة</button>
+            </div>
+
+            <div class="dash-grid" id="action-buttons" style="display: none;">
+                <div class="dash-card" onclick="showStudy()">
+                    <h3>📖 شرح المهارة</h3>
+                    <p>تعرف على قواعد ومصطلحات التدوينة، واقرأ المثال العملي الملون.</p>
+                </div>
+                <div class="dash-card" style="border-color: var(--danger);" onclick="startQuiz()">
+                    <h3 style="color: var(--danger);">🔥 اختبار عشوائي</h3>
+                    <p>10 أسئلة عشوائية لقياس فهمك للمهارة والمصطلحات.</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-alt" id="login-btn" style="max-width: 400px; padding: 18px; font-size: 1.4rem;" onclick="login()">تسجيل الدخول وبدء العمل</button>
+        </div>
+
+        <div id="screen-study" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--accent); font-size: 2rem;">✍️ مهارة كتابة التدوينة (Blog Post)</h2>
+                <button class="btn" style="width: auto; padding: 10px 20px; font-size: 1rem; background: var(--danger);" onclick="goHome()">رجوع</button>
+            </div>
+            
+            <div class="study-area">
+                <div class="study-section">
+                    <h3 class="study-h3">📌 ما هي التدوينة؟ (Definition)</h3>
+                    <p>التدوينة هي مقالة أو مشاركة يتم نشرها على المدونة.<br>
+                    <span class="study-en">A blog post is an individual article or entry published on a blog.</span></p>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">📌 خطوات كتابة التدوينة (Steps)</h3>
+                    <ul class="study-list">
+                        <li><span class="study-en hl-green">Choose a clear topic:</span> اختر موضوعاً واضحاً.</li>
+                        <li><span class="study-en hl-green">Define your purpose:</span> حدد الغرض المستهدف.</li>
+                        <li><span class="study-en hl-green">Identify your target audience:</span> حدد الجمهور (قراء المقال).</li>
+                        <li><span class="study-en hl-green">Create a catchy title:</span> أنشئ عنواناً جذاباً يخطف الانتباه.</li>
+                        <li><span class="study-en hl-green">Write an introduction:</span> اكتب مقدمة تحتوي على <span class="study-en hl-red">(Hook)</span> لجذب القارئ، مثل سؤال أو قصة.</li>
+                        <li><span class="study-en hl-green">Develop Body Paragraphs:</span> طور فقرات الموضوع (2-4 فقرات) مستخدماً أدوات الربط <span class="study-en hl-red">(Transition words)</span> مثل <span class="study-en">first, next, however</span>.</li>
+                        <li><span class="study-en hl-green">Write a Conclusion:</span> الخاتمة تلخص الموضوع، وتحتوي على <span class="study-en hl-red">(Call to Action - CTA)</span> لتشجيع القراء على التعليق أو المشاركة.</li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">📌 نصائح لغوية (Tips on Style)</h3>
+                    <ul class="study-list">
+                        <li>استخدم لغة بسيطة وواضحة <span class="study-en">(simple, clear language)</span>.</li>
+                        <li>اكتب بنبرة ودودة وشخصية <span class="study-en">(friendly, personal tone)</span>.</li>
+                        <li>استخدم ضمير المتكلم الأول <span class="study-en">("I", "We")</span> لأن التدوينة شخصية.</li>
+                    </ul>
+                </div>
+
+                <div class="study-section" style="border-bottom:none;">
+                    <h3 class="study-h3">💡 مثال عملي توضيحي (Example)</h3>
+                    <p style="color: var(--text-muted); font-size: 1rem;">اقرأ المقال التالي ولاحظ كيف تم تطبيق القواعد والمصطلحات بالألوان:</p>
+                    
+                    <div class="example-box">
+                        <div class="ex-title">Why Morning Walks Change Everything!</div>
+                        
+                        <div class="ex-p">
+                            <span class="ex-label tag-hook">Hook</span> 
+                            Have you ever felt exhausted before the day even begins? 
+                            <span class="ex-label tag-intro">Intro</span> 
+                            Last month, I felt the same, so I decided to try something new: walking for 20 minutes every morning.
+                        </div>
+                        
+                        <div class="ex-p">
+                            <span class="ex-label tag-trans">Transition</span> 
+                            <strong>First,</strong> the fresh air helped clear my mind. 
+                            <span class="ex-label tag-trans">Transition</span> 
+                            <strong>Moreover,</strong> I noticed that my energy levels during work were much higher than usual. It was truly an amazing experience.
+                        </div>
+                        
+                        <div class="ex-p">
+                            <span class="ex-label tag-trans">Transition</span> 
+                            <strong>To sum up,</strong> a simple morning walk can boost your mood and health. 
+                            <span class="ex-label tag-cta">Call to Action (CTA)</span> 
+                            <strong>Are you ready to try it tomorrow? Let me know in the comments below!</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-alt" style="margin-top: 30px; font-size: 1.4rem; padding: 15px;" onclick="startQuiz()">جاهز؟ ابدأ الاختبار الشامل 🔥</button>
+            </div>
+        </div>
+
+        <div id="screen-quiz" class="screen">
+            <div class="quiz-container">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;">
+                    <span id="quiz-progress" style="color: var(--text-muted); font-weight: bold; font-size: 1.2rem;">سؤال 1 / 10</span>
+                    <button class="btn" style="width: auto; padding: 8px 15px; font-size: 1rem; background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger); box-shadow: none;" onclick="exitQuiz()">خروج 🔙</button>
+                    <span id="score-display" style="color: var(--secondary); font-weight: 900; font-size: 1.2rem;">النقاط: 0</span>
+                </div>
+                
+                <div id="question-text" class="question-text">Question?</div>
+                <div id="options-container" class="options-grid"></div>
+                
+                <div id="feedback-box" class="feedback-box"></div>
+                <button id="next-btn" class="btn btn-next" onclick="nextQuestion()">قرأت التصحيح.. السؤال التالي ➡️</button>
+            </div>
+        </div>
+
+        <div id="screen-result" class="screen">
+            <div class="cert-new-container" id="capture-cert">
+                <h2 style="color: #2dd4bf; margin-bottom: 10px; font-size: 2.2rem;">📜 شهادة إنجاز المهارات</h2>
+                <div style="font-size: 1.3rem;" id="cert-title">إلى البطل:</div>
+                <div class="cert-name" id="cert-name">الاسم</div>
+                <div id="cert-desc" style="color: var(--text-muted); font-size: 1.1rem;">لاجتياز اختبار مهارة كتابة التدوينة (Blog Post) بنسبة:</div>
+                
+                <div class="gauge-container">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" id="gauge-fill"></div>
+                    <div class="gauge-text" id="cert-score">0%</div>
+                </div>
+                <div style="color: var(--primary); font-weight: 900; font-size: 1.4rem; margin-top: 15px;">Mr. Gamal Abo Eish - El-Captain</div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap;">
+                <button class="btn btn-alt" style="flex: 1; min-width: 200px;" onclick="downloadCert()">📥 تنزيل الشهادة كصورة</button>
+                <button class="btn btn-wa" style="flex: 1; min-width: 200px; background: #25D366;" onclick="sendWhatsApp()">💬 إرسال النتيجة للمستر</button>
+                <button class="btn" style="flex: 1; min-width: 200px; background: var(--surface); color: var(--text-main); border: 2px solid var(--text-muted);" onclick="goHome()">الرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProtectionActive = true;
+        document.addEventListener('contextmenu', e => { if(isProtectionActive) e.preventDefault() });
+        document.addEventListener('copy', e => { if(isProtectionActive) e.preventDefault() });
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        const questionsPool = [
+            { q: "What is a 'Blog Post'?", ans: "An individual article published on a blog", opts: ["An individual article published on a blog", "A formal letter to a manager", "A printed newspaper", "A private diary"], reason: "التدوينة هي مقالة يتم نشرها على موقع أو مدونة على الإنترنت." },
+            { q: "Which of the following is an engaging opening that grabs the reader's attention?", ans: "Hook", opts: ["Hook", "Tone", "Audience", "Conclusion"], reason: "الـ Hook هي الجملة الافتتاحية الجذابة (مثل سؤال أو قصة) التي تخطف انتباه القارئ." },
+            { q: "A sentence encouraging the reader to take an action (e.g., comment, share) is called:", ans: "Call to Action (CTA)", opts: ["Call to Action (CTA)", "Hook", "Catchy Title", "Subheading"], reason: "الدعوة لاتخاذ إجراء (CTA) تُكتب غالباً في الخاتمة لتشجيع التفاعل." },
+            { q: "What kind of tone is usually used in a blog post?", ans: "Friendly and personal", opts: ["Friendly and personal", "Strictly formal", "Scientific and academic", "Boring and long"], reason: "التدوينة تُكتب بأسلوب ودي وشخصي وكأنك تتحدث لصديق." },
+            { q: "Words like 'first', 'next', 'however', and 'finally' are called:", ans: "Transition words", opts: ["Transition words", "Catchy titles", "Hooks", "Audience"], reason: "أدوات الربط (Transition words) تُستخدم لربط الأفكار والفقرات ببعضها بسلاسة." },
+            { q: "Which pronouns are commonly used in a personal blog post?", ans: "\"I\" and \"We\"", opts: ["\"I\" and \"We\"", "\"It\" only", "\"They\" only", "\"He\" and \"She\""], reason: "لأن التدوينة شخصية، نستخدم ضمائر المتكلم الأول (I, We)." },
+            { q: "What is the main purpose of a 'Catchy Title'?", ans: "To attract clicks and grab attention", opts: ["To attract clicks and grab attention", "To summarize the whole story", "To say goodbye to the reader", "To provide a definition"], reason: "العنوان الجذاب (Catchy Title) يهدف لجذب الانتباه وزيادة النقرات." },
+            { q: "How long should paragraphs generally be in a blog post?", ans: "Short (2-5 sentences)", opts: ["Short (2-5 sentences)", "Very long (10-15 sentences)", "Just one word", "It doesn't matter"], reason: "يفضل أن تكون الفقرات قصيرة لسهولة القراءة على الإنترنت." },
+            { q: "What should you normally include in the conclusion of a blog post?", ans: "A summary and a Call to Action", opts: ["A summary and a Call to Action", "A completely new topic", "A very long story", "A formal signature"], reason: "الخاتمة تلخص الموضوع وتطلب من القارئ التفاعل (CTA)." },
+            { q: "The group of people reading the post (e.g. teenagers, students) is called the:", ans: "Audience", opts: ["Audience", "Topic", "Transition", "Tone"], reason: "الجمهور المستهدف (Audience) هم فئة القراء التي يوجه لها المقال." },
+            { q: "According to the rules, what should you do BEFORE writing the introduction?", ans: "Choose a topic and target audience", opts: ["Choose a topic and target audience", "Write the conclusion", "Publish the post", "Ask for comments"], reason: "من أولى خطوات الكتابة هي تحديد الموضوع والجمهور والهدف." },
+            { q: "A smaller heading used to divide sections of a blog post is called a:", ans: "Subheading", opts: ["Subheading", "Hook", "Transition", "Conclusion"], reason: "العنوان الفرعي (Subheading) يُستخدم لتقسيم المقال لجعله أسهل في القراءة." }
+        ];
+
+        const praiseMale = ["ممتاز يا بطل! 🌟", "عاش يا بطل! 🔥", "أنت فخر لمستر جمال! 👑", "استمر يا وحش! 💪"];
+        const praiseFemale = ["ممتازة يا بطلة! 🌟", "عاش يا بطلة! 🔥", "أنتِ فخر لمستر جمال! 👑", "استمري يا متفوقة! 💪"];
+
+        let studentName = "", studentGender = "M";
+        let quizData = [], qIndex = 0, score = 0, audioCtx;
+
+        function setGender(g) {
+            studentGender = g;
+            document.getElementById('btn-male').classList.toggle('active', g === 'M');
+            document.getElementById('btn-female').classList.toggle('active', g === 'F');
+        }
+
+        function login() {
+            studentName = document.getElementById('student-name').value.trim();
+            if(!studentName) return alert("الرجاء كتابة اسمك يا بطل للمتابعة!");
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('action-buttons').style.display = 'grid';
+        }
+
+        function goHome() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-intro').classList.add('active');
+        }
+
+        function showStudy() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-study').classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function exitQuiz() {
+            if(confirm("هل تريد الخروج من الاختبار حقاً؟")) goHome();
+        }
+
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if(type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        function showVisualMotivation() {
+            let praiseList = studentGender === 'M' ? praiseMale : praiseFemale;
+            let text = praiseList[Math.floor(Math.random() * praiseList.length)];
+            let toast = document.getElementById('toast-msg');
+            toast.innerText = text; 
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1500);
+        }
+
+        function startQuiz() {
+            initAudio(); 
+            // اختيار 10 أسئلة عشوائية
+            quizData = [...questionsPool].sort(() => 0.5 - Math.random()).slice(0, 10);
+            quizData.forEach(q => { q.opts = q.opts.sort(() => 0.5 - Math.random()); });
+
+            qIndex = 0; score = 0;
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-quiz').classList.add('active');
+            renderQ();
+        }
+
+        function updateProgressBar() {
+            const progressPercent = ((qIndex) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+        }
+
+        function renderQ() {
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback-box').style.display = 'none';
+            document.getElementById('score-display').innerText = `النقاط: ${score}`;
+            
+            updateProgressBar();
+            let q = quizData[qIndex];
+            document.getElementById('quiz-progress').innerText = `سؤال ${qIndex + 1} / ${quizData.length}`;
+            document.getElementById('question-text').innerText = q.q;
+
+            let optsBox = document.getElementById('options-container');
+            optsBox.innerHTML = '';
+            q.opts.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'opt-btn'; btn.innerText = opt;
+                btn.onclick = () => checkAns(btn, opt, q.ans, q.reason);
+                optsBox.appendChild(btn);
+            });
+        }
+
+        function checkAns(btn, selected, correct, reason) {
+            document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+            
+            if(selected === correct) {
+                btn.classList.add('correct'); score++;
+                playSound('correct'); 
+                showVisualMotivation(); 
+                setTimeout(nextQuestion, 1500); 
+            } else {
+                btn.classList.add('wrong'); playSound('wrong');
+                document.querySelectorAll('.opt-btn').forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+                
+                let feedback = document.getElementById('feedback-box');
+                feedback.style.display = 'block';
+                feedback.innerHTML = `❌ <strong>إجابة غير صحيحة!</strong><br><br>الإجابة الصحيحة هي: <span style="color:var(--primary); font-size:1.4rem; display:inline-block;">${correct}</span><br><br><span style="color:var(--secondary); font-size:1rem; display:block;">💡 <strong>التوضيح:</strong> ${reason}</span>`;
+                
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }
+
+        function nextQuestion() {
+            qIndex++;
+            if(qIndex < quizData.length) renderQ();
+            else finishQuiz();
+        }
+
+        function finishQuiz() {
+            isProtectionActive = false; document.body.classList.remove('secure-mode');
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            
+            document.getElementById('progress-bar').style.width = `100%`;
+            document.getElementById('cert-title').innerText = studentGender === 'M' ? "إلى البطل:" : "إلى البطلة:";
+            
+            let percent = Math.round((score / quizData.length) * 100);
+            
+            // --- الحفظ التلقائي في قاعدة بيانات المتصفح للربط بالمنصة الشاملة ---
+            localStorage.setItem('Sec3_Unit1_Skills_Score', percent);
+            
+            document.getElementById('cert-name').innerText = studentName;
+            document.getElementById('cert-score').innerText = percent + "%";
+            document.getElementById('cert-score').style.color = percent >= 50 ? "#10b981" : "#ef4444";
+            
+            setTimeout(() => { document.getElementById('gauge-fill').style.transform = `rotate(${-135 + (percent * 1.8)}deg)`; }, 500);
+            if(percent >= 50) confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 } });
+        }
+
+        function downloadCert() {
+            html2canvas(document.getElementById('capture-cert'), {backgroundColor: '#111827', scale: 2}).then(canvas => {
+                let a = document.createElement('a');
+                a.download = `شهادة_مهارات_ElCaptain_${studentName.replace(/\s+/g, '_')}.png`;
+                a.href = canvas.toDataURL();
+                a.click();
+            });
+        }
+
+        function sendWhatsApp() {
+            let heroTitle = studentGender === 'M' ? 'البطل' : 'البطلة';
+            let msg = encodeURIComponent(`مرحباً مستر جمال 🌟\nأنا ${heroTitle}: *${studentName}*\nأنهيت اختبار المهارات (Blog Post) بنسبة دقة: *${document.getElementById('cert-score').innerText}* 🎯`);
+            window.open(`https://wa.me/201007607035?text=${msg}`);
+        }
+    </script>
+</body>
+</html>

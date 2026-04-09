@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El-Captain - Punctuation & Capitalization</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0f172a; --surface: #1e293b; --primary: #3b82f6; --primary-glow: rgba(59, 130, 246, 0.5);
+            --secondary: #10b981; --accent: #f59e0b; --danger: #ef4444; 
+            --text-main: #f8fafc; --text-muted: #94a3b8; --input-bg: #1e293b; --input-border: #3b82f6;
+        }
+        body.light-mode {
+            --bg: #f1f5f9; --surface: #ffffff; --text-main: #0f172a; --text-muted: #475569;
+            --input-bg: #ffffff; --input-border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-top: 130px; transition: 0.3s; overflow-x: hidden;}
+        
+        body.secure-mode { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input.text-input, input[type="radio"] { user-select: auto !important; -webkit-user-select: auto !important; }
+
+        /* Header */
+        .instructor-header { background: var(--surface); padding: 10px 20px; border-bottom: 2px solid var(--primary); box-shadow: 0 0 15px var(--primary-glow); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; transition: 0.3s; }
+        .header-title { text-align: right; }
+        .exam-title-en { font-weight: 900; font-size: 1.2rem; color: var(--text-main); direction: ltr; margin-bottom: 3px;}
+        .phone-number { font-size: 0.9rem; color: var(--text-main); letter-spacing: 1px; font-weight: bold; margin-bottom: 2px; }
+        .teacher-name { color: var(--primary); font-size: 1rem; font-weight: bold; }
+        .captain-badge { background: var(--accent); color: #000; padding: 2px 5px; border-radius: 5px; font-size: 0.8rem; margin-right: 5px;}
+
+        .header-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;}
+        .social-btn { text-decoration: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 0.9rem; transition: 0.3s; display: flex; align-items: center; gap: 5px;}
+        .social-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .btn-wa { background-color: #25D366; }
+        .btn-fb { background-color: #1877F2; }
+        .btn-ig { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .theme-btn { background: transparent; border: 2px solid var(--text-main); color: var(--text-main); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;}
+
+        .container { flex: 1; padding: 15px; max-width: 950px; margin: 0 auto; width: 100%; }
+        .screen { display: none; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .screen.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .btn { background: linear-gradient(45deg, var(--primary), #2563eb); color: white; border: none; padding: 15px 20px; font-size: 1.2rem; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px var(--primary-glow); width: 100%; transition: all 0.3s;}
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px var(--primary-glow); }
+        .btn-alt { background: linear-gradient(45deg, var(--secondary), #059669); box-shadow: 0 4px 15px var(--secondary-glow);}
+        .btn-next { background: linear-gradient(45deg, var(--accent), #d97706); color: #000; font-size: 1.4rem; padding: 15px; border-radius: 12px; margin-top: 20px; display: none; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4); border: 2px solid #fff;}
+
+        .text-input { width: 100%; max-width: 400px; padding: 15px; font-size: 1.3rem; border-radius: 12px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--text-main); text-align: center; outline: none; margin-bottom: 10px;}
+        .gender-toggle { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .gender-btn { background: var(--bg); color: var(--text-muted); border: 2px solid var(--text-muted); padding: 12px 30px; border-radius: 15px; cursor: pointer; font-size: 1.3rem; font-weight: bold; transition: 0.3s; }
+        .gender-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        @media(max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
+        .dash-card { background: var(--surface); padding: 30px 20px; border-radius: 20px; text-align: center; cursor: pointer; border: 2px solid var(--input-border); transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2);}
+        .dash-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+        /* الشرح */
+        .study-area { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #334155; line-height: 1.8; font-size: 1.25rem; }
+        .study-section { margin-bottom: 35px; padding-bottom: 20px; border-bottom: 1px dashed #475569; }
+        .study-section:last-child { border-bottom: none; }
+        .study-h3 { color: var(--accent); font-size: 1.7rem; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; font-weight: 900;}
+        .study-list { list-style: none; padding: 0; margin-right: 15px; }
+        .study-list li { margin-bottom: 15px; position: relative; padding-right: 25px;}
+        .study-list li::before { content: "🔹"; position: absolute; right: 0; top: 0;}
+        .example-box { background: rgba(0,0,0,0.2); border-right: 5px solid var(--secondary); padding: 15px; border-radius: 8px; margin-top: 5px; direction: ltr; text-align: left; font-family: Arial, sans-serif; font-size: 1.1rem;}
+        .en-txt { color: var(--primary); font-weight: bold; direction: ltr; display: inline-block;}
+        .hl-green { color: #10b981; font-weight: bold; }
+        .hl-red { color: #ef4444; font-weight: bold; text-decoration: line-through;}
+
+        /* Quiz UI */
+        .quiz-container { background: var(--surface); padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; border: 1px solid #334155;}
+        .progress-container { width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 20px; overflow: hidden;}
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--secondary)); width: 0%; transition: width 0.5s;}
+
+        .question-text { font-size: 1.6rem; margin-bottom: 30px; font-weight: 900; direction: ltr; text-align: left; color: var(--primary); text-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+        .options-grid { display: flex; flex-direction: column; gap: 12px;}
+        .opt-btn { background: #1e293b; color: var(--text-main); border: 2px solid #475569; padding: 18px; font-size: 1.3rem; font-weight: bold; border-radius: 15px; cursor: pointer; transition: all 0.3s; width: 100%; text-align: left; direction: ltr;}
+        .opt-btn:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.1); transform: translateY(-3px);}
+        .opt-btn.correct { background: var(--secondary); border-color: var(--secondary); color: white;}
+        .opt-btn.wrong { background: var(--danger); border-color: var(--danger); color: white;}
+
+        .feedback-box { display: none; background: rgba(239, 68, 68, 0.1); border: 2px dashed var(--danger); border-radius: 15px; padding: 20px; margin-top: 20px; text-align: right; font-size: 1.2rem; direction: rtl;}
+        
+        .motivation-toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, var(--secondary), #059669); color: white; padding: 15px 40px; font-size: 1.8rem; font-weight: 900; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: bottom 0.5s; z-index: 9999; text-align: center; pointer-events: none;}
+        .motivation-toast.show { bottom: 40px; }
+
+        /* Certificate */
+        .cert-new-container { background-color: #111827; border: 3px solid var(--accent); border-radius: 20px; padding: 40px 20px; color: white; text-align: center; position: relative; overflow: hidden;}
+        body.light-mode .cert-new-container { background-color: #1e293b; }
+        .cert-name { color: var(--accent); font-size: 2.8rem; font-weight: bold; margin: 15px 0;}
+        .gauge-container { position: relative; width: 200px; height: 100px; overflow: hidden; margin: 20px auto; }
+        .gauge-bg { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 20px solid #334155; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(45deg); }
+        .gauge-fill { position: absolute; width: 200px; height: 200px; border-radius: 50%; border: 20px solid #10b981; border-bottom-color: transparent; border-right-color: transparent; transform: rotate(-135deg); transition: transform 1.5s;}
+        .gauge-text { position: absolute; bottom: 0; width: 100%; text-align: center; font-size: 2.5rem; font-weight: 900; color: white; }
+    </style>
+</head>
+<body class="secure-mode">
+
+    <div class="instructor-header">
+        <div class="header-title">
+            <div class="exam-title-en">Writing Skills: Punctuation</div>
+            <div class="phone-number">📞 01007607035</div>
+            <div class="teacher-name">Mr. Gamal Abo Eish <span class="captain-badge">El-Captain</span></div>
+        </div>
+        <div class="header-controls">
+            <a href="https://www.instagram.com/g.aboaish?igsh=MWUxbmJjOXBqMXI0NA==" target="_blank" class="social-btn btn-ig">📸 إنستجرام</a>
+            <a href="https://www.facebook.com/share/1HCVHKyLVT/" target="_blank" class="social-btn btn-fb">📘 فيسبوك</a>
+            <a href="https://wa.me/201007607035" target="_blank" class="social-btn btn-wa">💬 واتساب</a>
+            <button class="theme-btn" onclick="toggleTheme()">☀️</button>
+        </div>
+    </div>
+
+    <div id="toast-msg" class="motivation-toast">ممتاز!</div>
+
+    <div class="container">
+        <div id="screen-intro" class="screen active" style="text-align: center; margin-top: 5vh;">
+            <h1 style="font-size: 2.5rem; color: var(--primary);">مهارات الكتابة: علامات الترقيم ✍️</h1>
+            <h2 style="color: var(--text-muted); margin-bottom: 30px;">Punctuation Marks & Capitalization</h2>
+            
+            <div class="dash-grid" id="action-buttons">
+                <div class="dash-card" onclick="showStudy()">
+                    <h3 style="color: var(--secondary);">📖 شرح مستر جمال</h3>
+                    <p>دليلك الشامل لعلامات الترقيم والحروف الكبيرة.</p>
+                </div>
+                <div class="dash-card" style="border-color: var(--danger);" onclick="startQuiz()">
+                    <h3 style="color: var(--danger);">🔥 اختبار شامل</h3>
+                    <p>23 سؤال لتغطية كل أفكار الدرس.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-study" class="screen">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--accent); font-size: 2rem;">✍️ Punctuation Marks</h2>
+                <button class="btn" style="width: auto; padding: 10px 20px; background: var(--danger);" onclick="goHome()">رجوع</button>
+            </div>
+            
+            <div class="study-area">
+                <div class="study-section">
+                    <h3 class="study-h3">🅰️ متى نجعل الحرف كبير (Capitalization)؟</h3>
+                    <ul class="study-list">
+                        <li>أول حرف في الجملة. <div class="example-box"><strong>M</strong>y brother is a doctor.</div></li>
+                        <li>أول حرف في اسم الإنسان / لقبه / والألقاب الرسمية قبل الأسماء. <div class="example-box">This is <strong>K</strong>ing <strong>F</strong>arouk. / <strong>P</strong>resident <strong>O</strong>bama, <strong>C</strong>aptain <strong>J</strong>ohn, <strong>D</strong>octor <strong>S</strong>mith.</div></li>
+                        <li>أي اسم علم (بحار، أنهار، محيطات...). <div class="example-box">The <strong>A</strong>tlantic <strong>O</strong>cean.</div></li>
+                        <li>اسم لغة. <div class="example-box">He speaks <strong>E</strong>nglish.</div></li>
+                        <li>اسم يوم، شهر. <div class="example-box">I play on <strong>F</strong>ridays. / March.</div></li>
+                        <li>اسم دولة، قارة، جنسية، مدينة (أو مكان جوه المدينة). <div class="example-box">Have you seen <strong>P</strong>aris at night? / Jack visited <strong>A</strong>bu <strong>S</strong>imbel <strong>T</strong>emples in <strong>E</strong>gypt.</div></li>
+                        <li>أسماء الماركات والبراندات. <div class="example-box">He drives a <strong>T</strong>oyota. / <strong>P</strong>izza <strong>H</strong>ut.</div></li>
+                        <li>الحروف الموضوعة كاختصارات. <div class="example-box"><strong>CD</strong> / <strong>TV</strong> / <strong>OK</strong> / <strong>USA</strong> / <strong>UK</strong></div></li>
+                        <li>ضمير المتكلم (أنا) في أي مكان بالجملة. <div class="example-box">My friend and <strong>I</strong> like...</div></li>
+                        <li>أول حرف في الجملة داخل علامات التنصيص. <div class="example-box">"<strong>C</strong>lose the door," said the teacher.</div></li>
+                        <li>أسماء الكتب، الأفلام، المقالات، الأغاني. <div class="example-box">The <strong>L</strong>ord of the <strong>R</strong>ing.</div></li>
+                        <li>أسماء الشركات والمؤسسات والمنظمات. <div class="example-box"><strong>G</strong>oogle, <strong>M</strong>icrosoft, <strong>U</strong>nited <strong>N</strong>ations.</div></li>
+                        <li>أسماء الديانات والكتب المقدسة والعطلات الرسمية والأعياد. <div class="example-box"><strong>I</strong>slam, <strong>C</strong>hristianity, The <strong>Q</strong>uran. / <strong>E</strong>id, <strong>R</strong>amadan, <strong>C</strong>hristmas, <strong>N</strong>ew <strong>Y</strong>ear's Day.</div></li>
+                        <li>الكواكب والأجرام السماوية (عندما تستخدم كأسماء علم). <strong>ملاحظة هامة:</strong> كلمة <span class="en-txt">earth</span> لا تُكتب بحرف كبير إذا كانت تعني "التراب/الأرض" وليس الكوكب. <div class="example-box"><strong>E</strong>arth, <strong>M</strong>ars, <strong>J</strong>upiter.</div></li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">❓ علامة الاستفهام (Question mark)</h3>
+                    <ul class="study-list">
+                        <li>في نهاية السؤال المباشر. <div class="example-box">What is your name<strong>?</strong></div></li>
+                        <li>في نهاية السؤال المذيل. <div class="example-box">It is nice, isn't it<strong>?</strong></div></li>
+                        <li>عند كتابة سؤال داخل علامات التنصيص. <div class="example-box">He asked, "Where are you going<strong>?</strong>"</div></li>
+                        <li><strong>ملاحظة هامة:</strong> كلمات الربط (what, when, while, after) لا تُكتب بحرف كبير في منتصف الجملة ولا نضع لها علامة استفهام لأنها ليست سؤالاً. <div class="example-box">Tell me what you want<strong>.</strong> (نقطة وليس استفهام)</div></li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">💡 الفاصلة العليا (The apostrophe ')</h3>
+                    <ul class="study-list">
+                        <li>مع (s) الملكية. <div class="example-box">The man<strong>'s</strong> car. / The children<strong>'s</strong> books.</div></li>
+                        <li>لو الاسم جمع وانتهى بـ (s) نضع (') فقط بعد الـ s. <div class="example-box">The boys<strong>'</strong> pens. / James<strong>'</strong> car (or James's).</div></li>
+                        <li>في النفي المختصر واختصار الضمائر مع الأفعال. <div class="example-box">don<strong>'</strong>t, can<strong>'</strong>t, isn<strong>'</strong>t. / I am = I<strong>'</strong>m / There is = There<strong>'</strong>s.</div></li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">، الفاصلة السفلية (The comma)</h3>
+                    <ul class="study-list">
+                        <li><strong>المخاطب:</strong> تدور مع المخاطب حيث دار. <div class="example-box"><strong>Jack,</strong> I asked you... / I asked you, <strong>Jack,</strong> to do... / I asked you to do..., <strong>Jack.</strong></div></li>
+                        <li>قبل كلمة (please) إذا جاءت في النهاية، وبعدها إذا جاءت في الأول. <div class="example-box">Jack, do your homework<strong>,</strong> please. / Please<strong>,</strong> be quiet.</div></li>
+                        <li>الفصل بين سلسلة من الكلمات (قائمة). <div class="example-box">She ate apples<strong>,</strong> bananas<strong>,</strong> and oranges.</div></li>
+                        <li>الفصل بين الجملة والسؤال المذيل الخاص بها. <div class="example-box">The weather is hot<strong>,</strong> isn't it?</div></li>
+                        <li>بعد كلمات الربط (when, while, because...) <strong>فقط لو جاءت في أول الجملة</strong>. (لو في النصف لا نضع فاصلة). <div class="example-box">When you called<strong>,</strong> I was in the kitchen. / I was in the kitchen when you called.</div></li>
+                        <li>بعد ظرف الزمان في أول الجملة. <div class="example-box">Yesterday<strong>,</strong> I ate fish.</div></li>
+                        <li>بعد (Yes / No / Well) في أول الجملة. <div class="example-box">Yes<strong>,</strong> I do. / Well<strong>,</strong> ok.</div></li>
+                        <li>قبل السنة في التاريخ. <div class="example-box">He travelled on March 11<strong>,</strong> 2018.</div></li>
+                        <li>بين جملة التنصيص والقائل. (توضع الـ comma بالداخل قبل غلق التنصيص). <div class="example-box">Tom said<strong>,</strong> "I'm not free tomorrow". / "I am not free tomorrow<strong>,</strong>" said Tom.</div></li>
+                        <li>بين الصفات المترابطة التي يمكن وضع and بينها. <div class="example-box">She is a healthy<strong>,</strong> strong girl.</div></li>
+                        <li>بين الأماكن أو الأقسام في العنوان. <div class="example-box">He lives in Los Angeles<strong>,</strong> California. / The school is in Cairo<strong>,</strong> Egypt.</div></li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">: النقطتان (Colon) و ؛ الفصلة المنقوطة (Semi-colon)</h3>
+                    <ul class="study-list">
+                        <li><strong>Colon (:):</strong> تأتي بعد جملة كاملة لتقدم (تفسير، قائمة، أو نتيجة). وتستخدم في الساعة. <div class="example-box">I need to buy some groceries<strong>:</strong> eggs, milk, and bread. / The train arrives at 7<strong>:</strong>00.</div></li>
+                        <li><strong>Semi-colon (;):</strong> بديل عن (and / but)، تربط جملتين مستقلتين بينهما علاقة في المعنى بدون أداة ربط. <div class="example-box">Some people like to play football<strong>;</strong> others like to watch it. / I was very tired<strong>;</strong> I went to bed early.</div></li>
+                    </ul>
+                </div>
+
+                <div class="study-section">
+                    <h3 class="study-h3">عناصر أخرى هامة</h3>
+                    <ul class="study-list">
+                        <li><strong>الواصلة (Hyphen -):</strong> بين الأرقام (21 لـ 99)، وفي الصفات المركبة. <div class="example-box">twenty<strong>-</strong>five / a kind<strong>-</strong>hearted person.</div></li>
+                        <li><strong>علامات التنصيص (" "):</strong> للكلام المباشر، وللكلمات التي تشرحها. <div class="example-box">"I am busy," said Ahmed. / The word "tall" is an adjective.</div></li>
+                        <li><strong>علامة التعجب (!):</strong> للمشاعر القوية (غضب، حب، خوف، تعجب) والأوامر المشددة. <div class="example-box">Oh, my God! / Stop! Police! / I love you!</div></li>
+                        <li><strong>النقطة (Full stop .):</strong> في نهاية الجملة الخبرية أو الأمرية، الجمل التي تبدأ بأداة استفهام وليست سؤالاً، وبعد الاختصارات. <div class="example-box">Close the door. / What he said made me happy. / <strong>No.</strong> (Number) / <strong>Tel.</strong> (Telephone) / <strong>Mr.</strong> John.</div></li>
+                    </ul>
+                </div>
+
+                <div class="study-section" style="border: 2px solid var(--accent); padding: 20px; border-radius: 15px;">
+                    <h3 class="study-h3" style="color: #fff; background: var(--accent); padding: 10px; border-radius: 10px;">🌟 تدريب عملي (تصحيح الأخطاء)</h3>
+                    <p style="color: var(--danger); text-decoration: line-through; direction: ltr; text-align: left; margin-bottom: 10px; font-size: 1.1rem;">
+                        i went to london last summer. it was amazing the weather was nice i visited many places like the london eye buckingham palace and the british museum. I also met my friend jack. he said "i am glad you came" we had lunch at a place called burger & fries. the food was great. we walked by the river thames and took many photos later we went to see a movie. it was called "The king's story." it was really good. do you know what i liked the most
+                    </p>
+                    <p style="color: var(--secondary); font-weight: bold; margin-bottom: 10px;">القطعة بعد التصحيح الكامل (37 خطأ):</p>
+                    <div class="example-box" style="border-left: 5px solid var(--secondary); border-right: none;">
+                        <span class="hl-green">I</span> went to <span class="hl-green">L</span>ondon last summer. <span class="hl-green">I</span>t was amazing<span class="hl-green">!</span> <span class="hl-green">T</span>he weather was nice<span class="hl-green">.</span> <span class="hl-green">I</span> visited many places like the <span class="hl-green">L</span>ondon <span class="hl-green">E</span>ye<span class="hl-green">,</span> <span class="hl-green">B</span>uckingham <span class="hl-green">P</span>alace<span class="hl-green">,</span> and the <span class="hl-green">B</span>ritish <span class="hl-green">M</span>useum. I also met my friend <span class="hl-green">J</span>ack. <span class="hl-green">H</span>e said<span class="hl-green">,</span> "<span class="hl-green">I</span> am glad you came<span class="hl-green">.</span>" <span class="hl-green">W</span>e had lunch at a place called <span class="hl-green">B</span>urger & <span class="hl-green">F</span>ries. <span class="hl-green">T</span>he food was great. <span class="hl-green">W</span>e walked by the <span class="hl-green">R</span>iver <span class="hl-green">T</span>hames and took many photos<span class="hl-green">.</span> <span class="hl-green">L</span>ater<span class="hl-green">,</span> we went to see a movie. <span class="hl-green">I</span>t was called "The <span class="hl-green">K</span>ing's <span class="hl-green">S</span>tory." <span class="hl-green">I</span>t was really good. <span class="hl-green">D</span>o you know what <span class="hl-green">I</span> liked the most<span class="hl-green">?</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-alt" style="margin-top: 20px; font-size: 1.4rem; padding: 15px;" onclick="startQuiz()">جاهز للتحدي؟ ابدأ الاختبار 🔥</button>
+            </div>
+        </div>
+
+        <div id="screen-quiz" class="screen">
+            <div class="quiz-container">
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;">
+                    <span id="quiz-progress" style="color: var(--text-muted); font-weight: bold; font-size: 1.2rem;">سؤال 1 / 23</span>
+                    <button class="btn" style="width: auto; padding: 8px 15px; font-size: 1rem; background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger);" onclick="goHome()">خروج 🔙</button>
+                </div>
+                
+                <div id="question-text" class="question-text">Question?</div>
+                <div id="options-container" class="options-grid"></div>
+                
+                <div id="feedback-box" class="feedback-box"></div>
+                <button id="next-btn" class="btn btn-next" onclick="nextQuestion()">قرأت التصحيح.. التالي ➡️</button>
+            </div>
+        </div>
+
+        <div id="screen-result" class="screen">
+            <div class="cert-new-container" id="capture-cert">
+                <h2 style="color: #2dd4bf; margin-bottom: 10px; font-size: 2.2rem;">📜 شهادة إتقان المهارات</h2>
+                <div style="font-size: 1.3rem;" id="cert-title">إلى البطل:</div>
+                <div class="cert-name" id="cert-name">الاسم</div>
+                <div id="cert-desc" style="color: var(--text-muted); font-size: 1.1rem;">لاجتياز تحدي (Punctuation & Capitalization) بنسبة دقة:</div>
+                
+                <div class="gauge-container">
+                    <div class="gauge-bg"></div>
+                    <div class="gauge-fill" id="gauge-fill"></div>
+                    <div class="gauge-text" id="cert-score">0%</div>
+                </div>
+                <div style="color: var(--primary); font-weight: 900; font-size: 1.4rem; margin-top: 15px;">Mr. Gamal Abo Eish - El-Captain</div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap;">
+                <button class="btn btn-alt" style="flex: 1; min-width: 200px;" onclick="downloadCert()">📥 حفظ الشهادة</button>
+                <button class="btn" style="flex: 1; min-width: 200px; background: var(--surface); color: var(--text-main);" onclick="goHome()">الرئيسية</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProtectionActive = true;
+        document.addEventListener('contextmenu', e => { if(isProtectionActive) e.preventDefault() });
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        let studentName = localStorage.getItem('ElCaptain_StudentName') || "طالب مميز";
+        let studentGender = localStorage.getItem('ElCaptain_StudentGender') || "M";
+
+        // مصفوفات التشجيع بناءً على النوع
+        const praiseMale = ["ممتاز يا بطل! 🌟", "عاش يا بطل! 🔥", "تركيزك عالي! 🎯", "أنت فخر لمستر جمال! 👑"];
+        const praiseFemale = ["ممتازة يا بطلة! 🌟", "عاش يا بطلة! 🔥", "تركيزك عالي! 🎯", "أنتِ فخر لمستر جمال! 👑"];
+
+        function showVisualMotivation() {
+            let praiseList = studentGender === 'M' ? praiseMale : praiseFemale;
+            let text = praiseList[Math.floor(Math.random() * praiseList.length)];
+            let toast = document.getElementById('toast-msg');
+            toast.innerText = text; 
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 1500);
+        }
+
+        // الـ 23 سؤال من ملف الـ PDF
+        const rawQuestions = [
+            { q: "1. Which sentence uses the correct capitalization?", ans: "He lives in Paris.", opts: ["he lives in paris.", "He Lives in paris.", "He lives in Paris.", "he Lives In Paris."], reason: "أول حرف في الجملة يجب أن يكون كبيراً (He)، وأسماء المدن يجب أن تبدأ بحرف كبير (Paris)." },
+            { q: "2. Choose the correct use of apostrophe ('):", ans: "The girl's dress is pink.", opts: ["The girls dress is pink.", "The girl's dress is pink.", "The girls' dress is pink.", "The girls dress' is pink."], reason: "للملكية المفردة نضع 's بعد الاسم (girl's)." },
+            { q: "3. Which sentence uses a comma correctly?", ans: "Yes, I do.", opts: ["Yes I do.", "Yes, I do.", "Yes. I do", "Yes- I do."], reason: "نضع فاصلة (comma) دائماً بعد كلمات Yes, No, Well في بداية الجملة." },
+            { q: "4. Select the correct hyphenated word:", ans: "kind-hearted", opts: ["kind hearted", "kindhearted", "kind-hearted", "kind, hearted"], reason: "الصفات المركبة (Compound adjectives) نضع بينها واصلة (Hyphen)." },
+            { q: "5. Choose the correct question form:", ans: "What is your name?", opts: ["What is your name!", "What is your name.", "What is your name?"], reason: "السؤال الذي يبدأ بأداة استفهام يجب أن ينتهي بعلامة استفهام (?)." },
+            { q: "6. Which sentence has the perfect punctuation?", ans: "B&C", opts: ["Jane said \",I have had my lunch\".", "Jane said, \"I have had my lunch\".", "\"I have had my lunch,\" Jane said.", "B&C"], reason: "الفاصلة توضع قبل فتح علامات التنصيص، أو بداخل علامات التنصيص قبل إغلاقها إذا جاء القائل في النهاية." },
+            { q: "7. Which sentence uses the colon (:) correctly?", ans: "He has many friends: Ali, Omar, and Sara.", opts: ["He has many friends: Ali, Omar, and Sara.", "He: has many friends, Ali, Omar and Sara.", "He has: many friends, Ali, Omar and Sara.", "He has many: friends, Ali, Omar and Sara."], reason: "النقطتان (:) تستخدمان بعد جملة مكتملة لتقديم قائمة من الأشياء أو تفسير لما قبلها." },
+            { q: "8. What is the correct contraction for \"do not\"?", ans: "don't", opts: ["don't", "do'nt", "do not'", "dont'"], reason: "نحذف حرف الـ o من كلمة not ونضع مكانه الفاصلة العليا ('don't')." },
+            { q: "9. What punctuation is missing? \nHe bought apples bananas and grapes.", ans: ",", opts: [".", ":", ",", ";"], reason: "للفصل بين سلسلة من الأشياء في قائمة (apples, bananas) نستخدم الفاصلة (,)." },
+            { q: "10. Choose the correct semi-colon (;) usage:", ans: "I was tired; I went to bed early.", opts: ["I was tired; I went to bed early.", "I was tired, I went to bed early.", "I was tired. I went to bed; early.", "I was tired: I went to bed early."], reason: "تستخدم الفصلة المنقوطة (;) لربط جملتين مستقلتين بينهما علاقة في المعنى كبديل لـ and/so/because." },
+            { q: "11. Which word needs a capital letter?", ans: "egypt", opts: ["egypt", "School", "friend", "mother"], reason: "أسماء الدول (Egypt) يجب أن تبدأ دائماً بحرف كبير (Capital letter)." },
+            { q: "12. Which is correct?", ans: "\"Where are you going?\" he asked.", opts: ["\"Where are you going?\", he asked.", "\"Where are you going\"? he asked.", "\"Where are you going?\" he asked.", "\"Where are you going.\" he asked."], reason: "علامة الاستفهام للسؤال توضع داخل علامات التنصيص، ولا نضع بعدها فاصلة (,)." },
+            { q: "13. Which use of exclamation mark is correct?", ans: "Stop!", opts: ["Stop?", "Stop!", "Stop.", "Stop,"], reason: "علامة التعجب (!) تستخدم مع الأوامر المشددة والتحذير والمشاعر القوية." },
+            { q: "14. Pick the correct sentence:", ans: "My brother is a doctor.", opts: ["My brother is doctor.", "my Brother is a doctor.", "My brother is a doctor.", "My Brother is Doctor."], reason: "أول حرف كبير (My)، ولا نكبر بقية الكلمات العادية، ويجب وضع أداة نكرة قبل الوظيفة (a doctor)." },
+            { q: "15. Choose the correct punctuation in address:", ans: "He lives in Cairo, Egypt.", opts: ["He lives in Cairo Egypt.", "He lives in Cairo, Egypt.", "He lives in, Cairo Egypt.", "He, lives in Cairo Egypt."], reason: "نستخدم الفاصلة (,) للفصل بين أجزاء العنوان (المدينة ثم الدولة)." },
+            { q: "16. Select the correct sentence:", ans: "I'm tired; I'll sleep now.", opts: ["I'm tired I'll sleep now.", "I'm tired, I'll sleep now.", "I'm tired; I'll sleep now.", "I'm tired: I'll sleep now."], reason: "جملتان مستقلتان بينهما علاقة ولم نستخدم أداة ربط مثل so، لذا نستخدم الفصلة المنقوطة (;)." },
+            { q: "17. Which is a correct series with commas?", ans: "She bought milk, bread, and butter.", opts: ["She bought milk and bread and butter.", "She bought milk, bread, and butter.", "She bought, milk bread and butter.", "She bought milk, bread and, butter."], reason: "نضع فاصلة بين عناصر القائمة، ويمكن وضع فاصلة قبل and الأخيرة (تسمى Oxford comma) وهي صحيحة." },
+            { q: "18. Which sentence ends with a full stop?", ans: "I love chocolate", opts: ["I love chocolate", "What are you doing", "Stop", "Where are you"], reason: "الجملة الخبرية العادية (أنا أحب الشوكولاتة) تنتهي بنقطة." },
+            { q: "19. Choose the correct abbreviation punctuation:", ans: "Mr. John", opts: ["Mr John", "Mr. John", "Mr., John", "Mr: John"], reason: "الاختصارات للألقاب (مثل Mister) توضع بعدها نقطة (Mr.)." },
+            { q: "20. Choose the correctly punctuated date:", ans: "March 11, 2022", opts: ["March 11 2022", "March 11, 2022", "11, March, 2022", "March 11. 2022"], reason: "في التاريخ الأمريكي، نضع الفاصلة (,) بين اليوم والسنة." },
+            { q: "21. I am looking for my ___ Emails. I want to send the invitaions.", ans: "friends'", opts: ["friend", "friends", "friends'", "friend's"], reason: "الإيميلات تعود لأصدقاء (جمع)، لذا نضع s الجمع أولاً ثم الفاصلة العليا بعدها ('friends)." },
+            { q: "22. She is a ___ runner.", ans: "a&b", opts: ["fast and fit", "fast, fit", "a&b"], reason: "يمكن فصل الصفات المترابطة بـ (and) أو بفاصلة (,) وكلاهما صحيح." },
+            { q: "23. The mechanic checked ___ car.", ans: "Amir and Omar's", opts: ["Amirs and Omar's", "Amir and Omar's", "Amir's and Omar's", "Amir's and Omars"], reason: "عندما يمتلك شخصان نفس الشيء (سيارة واحدة)، نضع 's الملكية على الاسم الأخير فقط." }
+        ];
+
+        let quizData = [];
+        let qIndex = 0, score = 0, audioCtx;
+
+        function goHome() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-intro').classList.add('active');
+        }
+
+        function showStudy() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-study').classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            if(type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1046.50, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            }
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function startQuiz() {
+            initAudio(); 
+            // خلط الأسئلة واختيارها كلها
+            quizData = [...rawQuestions].sort(() => 0.5 - Math.random());
+            qIndex = 0; score = 0;
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-quiz').classList.add('active');
+            renderQ();
+        }
+
+        function renderQ() {
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('feedback-box').style.display = 'none';
+            document.getElementById('progress-bar').style.width = `${(qIndex / quizData.length) * 100}%`;
+            
+            let q = quizData[qIndex];
+            document.getElementById('quiz-progress').innerText = `سؤال ${qIndex + 1} / ${quizData.length}`;
+            document.getElementById('question-text').innerText = q.q;
+
+            let optsBox = document.getElementById('options-container');
+            optsBox.innerHTML = '';
+            
+            // خلط الخيارات
+            let options = [...q.opts].sort(() => 0.5 - Math.random());
+            
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'opt-btn'; btn.innerText = opt;
+                btn.onclick = () => checkAns(btn, opt, q.ans, q.reason);
+                optsBox.appendChild(btn);
+            });
+        }
+
+        function checkAns(btn, selected, correct, reason) {
+            document.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+            
+            if(selected === correct) {
+                btn.classList.add('correct'); score++;
+                playSound('correct'); 
+                showVisualMotivation(); // تم إضافة التشجيع البصري هنا
+                setTimeout(nextQuestion, 1500); // زيادة وقت التأخير قليلاً ليقرأ التشجيع
+            } else {
+                btn.classList.add('wrong'); playSound('wrong');
+                document.querySelectorAll('.opt-btn').forEach(b => { if(b.innerText === correct) b.classList.add('correct'); });
+                
+                let fb = document.getElementById('feedback-box');
+                fb.style.display = 'block';
+                fb.innerHTML = `❌ <strong>خطأ!</strong><br>الإجابة الصحيحة: <span class="en-txt" style="font-size:1.4rem;">${correct}</span><br><br>💡 <strong>التوضيح:</strong> ${reason}`;
+                
+                document.getElementById('next-btn').style.display = 'block';
+            }
+        }
+
+        function nextQuestion() {
+            qIndex++;
+            if(qIndex < quizData.length) renderQ();
+            else finishQuiz();
+        }
+
+        function finishQuiz() {
+            document.getElementById('screen-quiz').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+            document.getElementById('progress-bar').style.width = `100%`;
+            
+            let percent = Math.round((score / quizData.length) * 100);
+            
+            // حفظ الدرجة لمنصة LMS
+            localStorage.setItem('Sec3_Unit1_Punctuation_Score', percent);
+            
+            document.getElementById('cert-title').innerText = studentGender === 'M' ? "إلى البطل:" : "إلى البطلة:";
+            document.getElementById('cert-name').innerText = studentName;
+            document.getElementById('cert-score').innerText = percent + "%";
+            document.getElementById('cert-score').style.color = percent >= 50 ? "#10b981" : "#ef4444";
+            
+            setTimeout(() => { document.getElementById('gauge-fill').style.transform = `rotate(${-135 + (percent * 1.8)}deg)`; }, 500);
+            if(percent >= 50) confetti({ particleCount: 300, spread: 100, origin: { y: 0.6 } });
+        }
+
+        function downloadCert() {
+            alert("لحفظ الشهادة، يرجى أخذ لقطة شاشة (Screenshot) لها لمشاركتها مع أصدقائك أو معلمك.");
+        }
+    </script>
+</body>
+</html>
